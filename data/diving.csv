@@ -1,0 +1,3 @@
+nome,regione,provincia,citta,indirizzo,lat,lng,telefono,whatsapp,email,sito,instagram,federazioni,tipi_immersione,servizi,lingue,rating_google,n_recensioni_google,fonte,data_verifica,contattato,esito
+"[TEST] Diving Esempio Lago",Lombardia,CO,Lecco,"Via di prova 1",45.8566,9.3977,+39 000 0000000,,test@example.com,https://example.com,,PADI|SSI,lago|tecnico,noleggio|corsi|ricarica,it|en,,,test,2026-10-21,no,
+"[TEST] Diving Esempio Mare",Liguria,GE,Camogli,"Via di prova 2",44.3488,9.1554,+39 000 0000001,,test2@example.com,https://example.com,,SSI|TDI,mare|corsi,noleggio|barca,it|en|de,,,test,2026-10-21,no,
