@@ -137,7 +137,10 @@ export default async function CenterPage({ params }: Props) {
             </p>
           )}
           {c.status === "unclaimed" && (
-            <p className="text-xs text-muted-foreground">Sei il titolare? A breve potrai rivendicare questa scheda.</p>
+            <p className="text-xs text-muted-foreground">
+              Sei il titolare?{" "}
+              <Link href={`/rivendica/${c.slug}`} className="text-primary underline-offset-4 hover:underline">Rivendica questa scheda</Link>
+            </p>
           )}
         </aside>
       </div>
