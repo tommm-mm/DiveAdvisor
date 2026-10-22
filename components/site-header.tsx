@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthLinks } from "@/components/auth-links";
 
 export function SiteHeader() {
   return (
@@ -7,6 +8,7 @@ export function SiteHeader() {
         <Link href="/" className="font-semibold tracking-tight">DiveAdvisor</Link>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/diving" className="hover:text-primary">Cerca diving</Link>
+          <AuthLinks />
         </div>
       </nav>
     </header>

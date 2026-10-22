@@ -6,6 +6,9 @@ import { CenterBadges } from "@/components/centers/center-badges";
 import { MapPanel } from "@/components/centers/map-panel";
 import { centerPath, getCenter, regionSlug, type Center } from "@/lib/centers";
 import { LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
+import { ContactForm } from "@/components/centers/contact-form";
+import { TrackedLink } from "@/components/centers/tracked-link";
+import { turnstileSiteKey } from "@/lib/turnstile";
 
 type Props = { params: Promise<{ regione: string; slug: string }> };
 
@@ -51,14 +54,12 @@ export default async function CenterPage({ params }: Props) {
   };
 
   const contacts = [
-    c.phone && { label: "Telefono", text: c.phone, href: `tel:${c.phone.replace(/\s/g, "")}` },
-    c.whatsapp && { label: "WhatsApp", text: c.whatsapp, href: whatsappUrl(c.whatsapp) },
+    c.whatsapp && { label: "WhatsApp", text: c.whatsapp, href: whatsappUrl(c.whatsapp), track: "whatsapp" as const },
+    c.phone && { label: "Telefono", text: c.phone, href: `tel:${c.phone.replace(/\s/g, "")}`, track: "phone" as const },
     c.email && { label: "Email", text: c.email, href: `mailto:${c.email}` },
     c.website && { label: "Sito web", text: c.website.replace(/^https?:\/\//, ""), href: c.website },
     c.instagram && { label: "Instagram", text: c.instagram, href: c.instagram.startsWith("http") ? c.instagram : `https://instagram.com/${c.instagram.replace(/^@/, "")}` },
-  ].filter(Boolean) as { label: string; text: string; href: string }[];
-
-  const primaryContact = contacts.find((x) => x.label === "WhatsApp") ?? contacts.find((x) => x.label === "Telefono") ?? contacts[0];
+  ].filter(Boolean) as { label: string; text: string; href: string; track?: "whatsapp" | "phone" }[];
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 pb-24 lg:pb-6">
@@ -110,24 +111,32 @@ export default async function CenterPage({ params }: Props) {
             <section aria-labelledby="mappa">
               <h2 id="mappa" className="mb-2 text-lg font-medium">Dove si trova</h2>
               {c.address && <p className="mb-2 text-sm">{c.address}, {c.city}</p>}
-              <MapPanel centers={[c]} desktopHeight="lg:h-80" />
+              <MapPanel centers={[{ id: c.id, slug: c.slug, name: c.name, region: c.region, city: c.city, lat: c.lat, lng: c.lng }]} desktopHeight="lg:h-80" />
             </section>
           )}
         </div>
 
         <aside aria-labelledby="contatti" className="space-y-3 lg:sticky lg:top-4 lg:self-start">
-          <div id="contatta" className="rounded-lg border p-4">
-            <h2 id="contatti" className="font-medium">Contatti</h2>
-            {contacts.length === 0 ? (
-              <p className="mt-2 text-sm text-muted-foreground">Nessun contatto disponibile.</p>
-            ) : (
-              <dl className="mt-3 space-y-2 text-sm">
-                {contacts.map((x) => (
-                  <div key={x.label}>
-                    <dt className="text-muted-foreground">{x.label}</dt>
-                    <dd><a href={x.href} className="break-all text-primary underline-offset-4 hover:underline" rel="noopener" target={x.href.startsWith("http") ? "_blank" : undefined}>{x.text}</a></dd>
-                  </div>
-                ))}
+          <div id="contatta" className="scroll-mt-4 rounded-lg border p-4">
+            <h2 id="contatti" className="font-medium">Scrivi al diving</h2>
+            <div className="mt-3"><ContactForm centerId={c.id} siteKey={turnstileSiteKey()} /></div>
+            {contacts.length > 0 && (
+              <dl className="mt-5 space-y-2 border-t pt-4 text-sm">
+                {contacts.map((x) => {
+                  const linkProps = {
+                    href: x.href,
+                    className: "break-all text-primary underline-offset-4 hover:underline",
+                    rel: "noopener nofollow",
+                    target: x.href.startsWith("http") ? "_blank" : undefined,
+                    children: x.text,
+                  };
+                  return (
+                    <div key={x.label}>
+                      <dt className="text-muted-foreground">{x.label}</dt>
+                      <dd>{x.track ? <TrackedLink {...linkProps} centerId={c.id} channel={x.track} /> : <a {...linkProps} />}</dd>
+                    </div>
+                  );
+                })}
               </dl>
             )}
           </div>
@@ -137,18 +146,17 @@ export default async function CenterPage({ params }: Props) {
             </p>
           )}
           {c.status === "unclaimed" && (
-            <p className="text-xs text-muted-foreground">Sei il titolare? A breve potrai rivendicare questa scheda.</p>
+            <p className="text-xs text-muted-foreground">
+              Sei il titolare?{" "}
+              <Link href={`/rivendica/${c.slug}`} className="text-primary underline-offset-4 hover:underline">Rivendica questa scheda</Link>
+            </p>
           )}
         </aside>
       </div>
 
-      {primaryContact && (
-        <div className="fixed inset-x-0 bottom-0 border-t bg-background p-3 lg:hidden">
-          <a href={primaryContact.href} className={buttonVariants({ className: "h-11 w-full" })}>
-            Contatta via {primaryContact.label.toLowerCase()}
-          </a>
-        </div>
-      )}
+      <div className="fixed inset-x-0 bottom-0 border-t bg-background p-3 lg:hidden">
+        <a href="#contatta" className={buttonVariants({ className: "h-11 w-full" })}>Contatta</a>
+      </div>
     </main>
   );
 }
