@@ -1,6 +1,7 @@
 // Reads data/diving.csv, validates every row and prints an error report.
 // Usage: npm run seed            -> validate only (dry run)
 //        npm run seed -- --write -> also upsert into Supabase (needs SUPABASE_SERVICE_ROLE_KEY)
+//        npm run seed -- --sql   -> print an idempotent upsert SQL statement (for the Supabase SQL editor)
 import { readFileSync } from "node:fs";
 
 const REQUIRED = ["nome", "regione", "citta", "lat", "lng", "fonte", "data_verifica"];
@@ -48,7 +49,7 @@ const centers = lines.map((cols, i) => {
   slugs.add(slug);
   const list = (f: string) => (r[f] ? r[f].split("|").map((v) => v.trim().toLowerCase()).filter(Boolean) : []);
   return {
-    slug, name: r.nome, region: r.regione, province: r.provincia || null, city: r.citta,
+    slug, name: r.nome, description: r.descrizione || null, region: r.regione, province: r.provincia || null, city: r.citta,
     address: r.indirizzo || null, lat, lng, phone: r.telefono || null, whatsapp: r.whatsapp || null,
     email: r.email || null, website: r.sito || null, instagram: r.instagram || null,
     federations: list("federazioni").map((v) => v.toUpperCase()), dive_types: list("tipi_immersione"),
@@ -60,6 +61,19 @@ const centers = lines.map((cols, i) => {
 console.log(`Rows: ${centers.length} | Errors: ${errors.length}`);
 errors.forEach((e) => console.log("  - " + e));
 if (errors.length) process.exit(1);
+
+if (process.argv.includes("--sql")) {
+  const lit = (v: unknown): string =>
+    v === null ? "null"
+    : Array.isArray(v) ? `'{${v.map((x) => `"${String(x).replace(/"/g, '\\"')}"`).join(",")}}'`
+    : typeof v === "number" ? String(v)
+    : `'${String(v).replace(/'/g, "''")}'`;
+  const cols = Object.keys(centers[0]);
+  const values = centers.map((c) => `  (${cols.map((k) => lit(c[k as keyof typeof c])).join(", ")})`);
+  const updates = cols.filter((k) => k !== "slug").map((k) => `${k} = excluded.${k}`).join(", ");
+  console.log(`insert into public.dive_centers (${cols.join(", ")}) values\n${values.join(",\n")}\n` +
+    `on conflict (slug) do update set ${updates}, updated_at = now();`);
+}
 
 if (process.argv.includes("--write")) {
   const { createClient } = await import("@supabase/supabase-js");

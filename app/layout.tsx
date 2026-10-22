@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SiteHeader } from "@/components/site-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DiveAdvisor — Trova e contatta i diving in Italia",
+  title: { default: "DiveAdvisor — Trova e contatta i diving in Italia", template: "%s | DiveAdvisor" },
   description: "Cerca, confronta e contatta i diving in Italia, laghi compresi. Recensioni verificate.",
 };
 
@@ -23,10 +24,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="it" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
+        <SiteHeader />
         {children}
       </body>
     </html>
