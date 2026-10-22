@@ -9,7 +9,7 @@ revoke execute on function public.handle_new_user() from public, anon, authentic
 create schema if not exists private;
 grant usage on schema private to anon, authenticated;
 
-create function private.is_center_owner(c_id uuid)
+create or replace function private.is_center_owner(c_id uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (
     select 1 from public.dive_centers where id = c_id and owner_id = (select auth.uid())
@@ -25,4 +25,5 @@ alter policy "codes: owner insert" on public.verification_codes
 alter policy "leads: owner read" on public.leads
   using (private.is_center_owner(center_id));
 
-drop function public.is_center_owner(uuid);
+-- The old public copy is no longer used by any policy; nobody may call it.
+revoke execute on function public.is_center_owner(uuid) from public, anon, authenticated;
