@@ -23,7 +23,7 @@ const FEATURES = [
 
 const FAQ = [
   { q: "Quanto costa?", a: "Il primo anno è gratuito, senza carta di credito e senza impegno. Prima della fine ti diremo in anticipo cosa cambia, e potrai decidere liberamente." },
-  { q: "Il mio diving è già in elenco senza che l'abbia chiesto. Perché?", a: "Pubblichiamo solo dati pubblici e verificati dei diving italiani, per dare ai subacquei un elenco completo. Puoi rivendicare la scheda per gestirla, oppure chiederne la rimozione." },
+  { q: "Il mio diving è già in elenco senza che l'abbia chiesto. Perché?", a: "Pubblichiamo solo dati pubblici e verificati dei diving italiani, per dare ai subacquei un elenco completo. Puoi rivendicare la scheda per gestirla, oppure chiederne la rimozione dalla pagina \"Rimuovi la tua scheda\" in fondo al sito." },
   { q: "Posso cancellare una recensione negativa?", a: "No. Puoi rispondere pubblicamente. Se una recensione viola le regole (insulti, dati personali, contenuti falsi) puoi segnalarla e la controlliamo." },
   { q: "Come funzionano i codici di verifica?", a: "Dalla tua area generi un codice di 8 caratteri o un QR e lo dai al cliente dopo l'immersione. Ogni codice vale una volta e scade dopo 30 giorni." },
   { q: "Lavoriamo con tutte le federazioni?", a: "Sì. DiveAdvisor è indipendente: PADI, SSI, CMAS, TDI, SDI, IANTD e tutte le altre, ricreativo e tecnico, mare e lago." },

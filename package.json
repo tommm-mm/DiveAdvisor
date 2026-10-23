@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
-    "seed": "node --experimental-strip-types scripts/seed.mts"
+    "seed": "node --experimental-strip-types scripts/seed.mts",
+    "outreach": "node --env-file=.env.local --experimental-strip-types scripts/outreach.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
