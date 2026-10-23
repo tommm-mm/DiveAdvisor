@@ -11,7 +11,7 @@ import { sendModerationEmail, sendNewReviewEmail } from "@/lib/email";
 import { centerPath } from "@/lib/centers";
 import { CRITERIA, normalizeCode, type CriterionKey } from "@/lib/review-utils";
 
-type Field = CriterionKey | "diveDate" | "text" | "code";
+type Field = CriterionKey | "diveDate" | "text" | "code" | "rules";
 
 export type ReviewState = {
   status: "idle" | "published" | "pending" | "error";
@@ -34,10 +34,11 @@ const schema = z.object({
   text: z.string().trim().min(40, "Scrivi almeno 40 caratteri").max(2000, "Massimo 2000 caratteri"),
   code: z.string().transform(normalizeCode)
     .refine((c) => c === "" || c.length === 8, "Il codice ha 8 caratteri, ad esempio K7MQ-3XPA"),
+  rules: z.literal("on", { error: "Conferma che la recensione rispetta le regole" }),
 });
 
 export async function submitReview(_prev: ReviewState, form: FormData): Promise<ReviewState> {
-  const fields: Field[] = [...CRITERIA.map((c) => c.key), "diveDate", "text", "code"];
+  const fields: Field[] = [...CRITERIA.map((c) => c.key), "diveDate", "text", "code", "rules"];
   const values = Object.fromEntries(fields.map((f) => [f, String(form.get(f) ?? "")])) as Record<Field, string>;
 
   const user = await getUser();
