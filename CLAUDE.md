@@ -1,4 +1,4 @@
-# [NOME] — piattaforma per trovare e contattare i diving in Italia
+# DiveAdvisor — piattaforma per trovare e contattare i diving in Italia
 
 ## Obiettivo
 Directory di diving con ricerca, schede, contatto diretto e recensioni verificate.

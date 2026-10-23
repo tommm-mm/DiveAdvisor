@@ -43,3 +43,34 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 10. **Test sulla preview protetta** — Vercel richiede login sulle preview: `tests/helpers/global-setup.ts` apre un link di condivisione temporaneo (`VERCEL_SHARE_TOKEN`, generato con il connettore Vercel, scade in 23 ore) e riusa il cookie. Comando:
     `E2E_BASE_URL=<url preview> VERCEL_SHARE_TOKEN=<token> PW_CHROMIUM_PATH=... npx playwright test`
     Nota: il connettore Supabase chiede conferma per i `delete`; senza risposta va in timeout.
+
+## Decisioni di prodotto (23/10/2026)
+- Nome definitivo: **DiveAdvisor** (aggiornati `CLAUDE.md` e `PROJECT.md`).
+- Foto: per la bozza foto stock gratuite (Unsplash) chiaramente di prova; foto ufficiali dei diving più avanti.
+- Audit UI/UX: dopo aver completato altre funzionalità e una bozza solida.
+- P.IVA: da aprire solo all'arrivo dei primi ricavi (sentire un commercialista circa un mese prima). Titolare del trattamento: Tommaso.
+- Lancio: sito online e curato prima di proporlo ai diving; lancio pubblico prima settimana di febbraio 2027, EUDI il 17 febbraio. Dominio acquistato a dicembre.
+
+## Da ricordare a Tommaso
+- **KPI**: definirli insieme (richiesta del 23/10/2026). Proposta di partenza: contatti inviati per diving al mese, recensioni verificate, diving rivendicati, visitatori unici.
+- **Modello di business**: ne parla col socio; bozza in `PROJECT.md` §11.
+- **Direzione visiva**: scelta "AB" (mix di A pulito e B outdoor) come base. Nella fase UI/UX Tommaso vuole vedere molte più direzioni da analizzare: semplice, facile da navigare, piacevole.
+- **Marketing**: priorità ai diving (portano traffico e lo ricevono). Tommaso farà gruppi Facebook, blog/newsletter, Instagram/TikTok su diving, siti e sito. SEO prioritaria.
+
+## Sprint 4 — checkpoint 1: stile AB
+- Font: Inter (testo) + Fraunces (titoli h1/h2, nel layer base così `font-sans` li sovrascrive). Accento blu petrolio `oklch(0.44 0.07 213)` (#0f5e6e), sabbia `--sand` per le sezioni calde.
+- Home nuova: banda colorata con titolo, ricerca (regione + tipo, GET su `/diving`), riquadri "Dove immergersi" per regione con conteggio, "Diving in evidenza" (i meglio recensiti), invito ai titolari.
+- Card: blocco colore al posto della foto (`PhotoTone`, tono stabile dal nome), voto medio e numero recensioni (`getRatings`, una query per lista), card tutta cliccabile.
+- Foto: Unsplash blocca il download automatico da questo ambiente; i blocchi colore si sostituiscono con `<Image>` quando avremo le foto.
+- Test: il test filtri su mobile falliva ~1 volta su 3 (click prima dell'idratazione); ora riprova finché il filtro è applicato. 28/28 su 4 ripetizioni.
+
+## Regole di lavoro (23/10/2026)
+- Per ogni cosa da provare: PR con anteprima Vercel → Tommaso prova e dà feedback → merge. Checkpoint senza nulla da provare restano sul branch.
+- Instagram gestito da Tommaso (luoghi, diving, consigli, alloggi, dietro le quinte); contenuti pagati sempre etichettati.
+- Sponsor: mai influenzano voti o recensioni; solo badge "Partner" e spazi in evidenza etichettati. EUDI = networking, vendita da primavera, accordi con alloggi dall'estate.
+
+## Decisioni (23/10/2026, sera)
+- Schede: le aggiungiamo noi con dati pubblici verificati (scheda "non rivendicata"), poi contattiamo il diving.
+- Negozi e scuole: sì, più avanti (tabelle/tipo attività separati, recensioni negozi dopo).
+- Pagina `/eudi` con modulo "Aggiungi la tua attività": approvata, da fare a gennaio (con dominio ed email); deve attirare sia attività sia subacquei.
+- Marketing e strategia: Tommaso usa un Claude Project separato; il brief non sta su GitHub.
