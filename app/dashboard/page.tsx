@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { centerPath } from "@/lib/centers";
 import { Badge } from "@/components/ui/badge";
 import { setLeadStatus } from "./actions";
+import { CodesSection, type Code } from "@/components/dashboard/codes-section";
+import { OwnerReviews, type OwnerReview } from "@/components/dashboard/owner-reviews";
 
 export const metadata: Metadata = { title: "Area diving", robots: { index: false } };
 
@@ -40,10 +43,19 @@ export default async function DashboardPage() {
 
   const ids = centers.map((c) => c.id);
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-  const { data: leads, error } = await supabase
-    .from("leads").select("id, center_id, name, email, message, channel, status, created_at")
-    .in("center_id", ids).order("created_at", { ascending: false }).limit(100);
+  const [{ data: leads, error }, { data: codes, error: codesError }, { data: reviews, error: reviewsError }] = await Promise.all([
+    supabase.from("leads").select("id, center_id, name, email, message, channel, status, created_at")
+      .in("center_id", ids).order("created_at", { ascending: false }).limit(100),
+    supabase.from("verification_codes").select("id, center_id, code, created_at, expires_at, used_at")
+      .in("center_id", ids).order("created_at", { ascending: false }).limit(30),
+    // RLS ("reviews: owner read own centre") returns published and pending reviews, never rejected ones.
+    supabase.from("reviews").select("id, center_id, status, dive_date, verified, text, owner_reply, owner_reply_at, created_at, score_safety, score_equipment, score_briefing, score_group, score_environment, score_value")
+      .in("center_id", ids).order("created_at", { ascending: false }).limit(100),
+  ]);
   const monthCount = leads?.filter((l) => l.created_at >= monthStart).length ?? 0;
+  // Links in codes/QR point at the host serving this page (preview or production).
+  const h = await headers();
+  const siteUrl = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
   const centerName = (id: string) => centers.find((c) => c.id === id)?.name ?? "";
 
   return (
@@ -106,6 +118,12 @@ export default async function DashboardPage() {
           </ul>
         )}
       </section>
+
+      <CodesSection
+        centers={centers.map((c) => ({ id: c.id, name: c.name, reviewUrl: `${siteUrl}${centerPath(c)}/recensione` }))}
+        codes={(codes ?? []) as Code[]} error={!!codesError} />
+      <OwnerReviews reviews={(reviews ?? []) as OwnerReview[]} error={!!reviewsError}
+        centerName={centers.length > 1 ? centerName : undefined} />
     </main>
   );
 }
