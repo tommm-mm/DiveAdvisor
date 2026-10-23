@@ -94,3 +94,12 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Trovato durante la verifica: la pagina prometteva "modifica scheda" ma la dashboard non l'aveva (è nell'MVP, punto 8). Aggiunta `/dashboard/scheda/[id]`: descrizione, contatti, indirizzo, stagione, tipi, federazioni, servizi, lingue; validazione lato server; RLS e grant di colonna limitano al titolare e a questi campi; la scheda pubblica si aggiorna subito.
 - Bug trovato dal test: dopo un errore di validazione il form perdeva tutte le modifiche (React azzera il form dopo l'azione). Ora l'azione restituisce i valori inviati e il form li ripropone.
 - Test: `tests/owner.spec.ts` (modifica + errore + pagina pubblica aggiornata; 404 su scheda altrui), test della pagina "Per i diving" e della ricerca per nome.
+
+## Sprint 4 — foto e video
+- **Migrazione `20261024000000_center_photos.sql`** — applicata. Bucket Storage pubblico `center-photos` (solo JPG/PNG/WebP, max 5 MB), file in `<center_id>/…`; policy su `storage.objects` (insert/update/delete solo del titolare, via `private.owns_photo_folder` che rifiuta cartelle non-uuid); tabella `center_photos` (ordine, posizione 0 = copertina, alt) con RLS (lettura pubblica, gestione del titolare); trigger max 8 foto; colonna `dive_centers.video_urls` (max 3, modificabile dal titolare). Advisor: nessun nuovo avviso.
+- Dashboard → Modifica scheda: gestione foto (compressione nel browser a 1600 px WebP, che elimina anche i metadati EXIF come il GPS; carica, elimina, rendi copertina), campi video con validazione (YouTube o post/reel Instagram).
+- Pubblico: copertina sulle card, galleria nella scheda, sezione Video (YouTube si carica solo al click dal dominio youtube-nocookie; Instagram come link perché l'embed imposta cookie), foto in schema.org e nell'immagine di condivisione.
+- Schede non rivendicate: restano senza foto (niente foto prese dai siti dei diving senza permesso).
+- Nota: l'upload con `upsert` richiederebbe anche permessi di lettura/aggiornamento su storage; non lo usiamo.
+- Test: upload foto + video + pulizia (`tests/owner.spec.ts`, in serie perché modificano lo stesso centro).
+- Deciso con Tommaso: revisione completa UX/UI pagina per pagina più avanti (inizio gennaio, prima del soft launch), con più direzioni e test con 3–5 persone.

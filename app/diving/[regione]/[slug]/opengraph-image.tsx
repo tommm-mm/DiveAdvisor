@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
-import { getCenter } from "@/lib/centers";
+import { getCenter, sortedPhotos } from "@/lib/centers";
+import { photoUrl } from "@/lib/photos";
 import { getRating } from "@/lib/reviews";
 
 // Per-centre share image: centres share their own page, so the preview should name them.
@@ -12,9 +13,15 @@ export default async function Image({ params }: { params: Promise<{ regione: str
   const c = await getCenter(regione, slug);
   const rating = c ? await getRating(c.id) : null;
   const place = c ? [c.city, c.region].filter(Boolean).join(", ") : "";
+  const cover = c ? sortedPhotos(c)[0] : undefined;
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "#f6f2ea", color: "#13232b" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "#f6f2ea", color: "#13232b" }}>
+      {/* With a cover photo: photo on the left, text on the right. */}
+      {cover ? (
+        <img src={photoUrl(cover.path)} alt="" width={480} height={630} style={{ width: 480, height: 630, objectFit: "cover" }} />
+      ) : null}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72 }}>
         <div style={{ fontSize: 40, fontWeight: 700, color: "#0f5e6e" }}>DiveAdvisor</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ fontSize: 68, fontWeight: 700, lineHeight: 1.05 }}>{c?.name ?? "Diving"}</div>
@@ -25,6 +32,7 @@ export default async function Image({ params }: { params: Promise<{ regione: str
             </div>
           ) : null}
         </div>
+      </div>
       </div>
     ),
     size,

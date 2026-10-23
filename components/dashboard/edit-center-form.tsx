@@ -9,7 +9,7 @@ import { DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "
 type Center = {
   id: string; description: string | null; address: string | null; phone: string | null; whatsapp: string | null;
   email: string | null; website: string | null; instagram: string | null; season: string | null;
-  federations: string[]; dive_types: string[]; services: string[]; languages: string[];
+  federations: string[]; dive_types: string[]; services: string[]; languages: string[]; video_urls: string[];
 };
 
 const field = "w-full rounded-lg border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
@@ -69,6 +69,16 @@ export function EditCenterForm({ center }: { center: Center }) {
       {group("federations", "Federazioni", FEDERATIONS.map((f) => [f, f]))}
       {group("services", "Servizi", Object.entries(SERVICE_LABELS))}
       {group("languages", "Lingue parlate", Object.entries(LANGUAGE_LABELS))}
+
+      <fieldset className="space-y-2" aria-describedby={err.video_urls ? "e-video-err" : "e-video-hint"}>
+        <legend className="text-sm font-medium">Video (fino a 3)</legend>
+        <p id="e-video-hint" className="text-xs text-muted-foreground">Link a video YouTube o a post e reel Instagram.</p>
+        {[0, 1, 2].map((i) => (
+          <input key={i} name="video_urls" type="url" placeholder="https://www.instagram.com/reel/…" aria-label={`Video ${i + 1}`}
+            defaultValue={list("video_urls")[i] ?? ""} className={`${field} h-10`} aria-invalid={!!err.video_urls} />
+        ))}
+        {err.video_urls && <p id="e-video-err" className="text-sm text-destructive">{err.video_urls}</p>}
+      </fieldset>
 
       {state.message && <p role="alert" className="text-sm text-destructive">{state.message}</p>}
       {state.status === "saved" && <p role="status" className="text-sm font-medium text-primary">Modifiche salvate. Sono già online.</p>}

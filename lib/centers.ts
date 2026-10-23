@@ -24,6 +24,8 @@ export type Center = {
   season: string | null;
   status: string;
   verified_at: string | null;
+  video_urls: string[];
+  center_photos: { path: string; position: number; alt: string | null }[];
 };
 
 export type CenterFilters = {
@@ -44,7 +46,7 @@ export type FilterOptions = {
 };
 
 const LIST_COLUMNS =
-  "id, slug, name, description, region, province, city, address, lat, lng, phone, whatsapp, email, website, instagram, federations, dive_types, services, languages, season, status, verified_at";
+  "id, slug, name, description, region, province, city, address, lat, lng, phone, whatsapp, email, website, instagram, federations, dive_types, services, languages, season, status, verified_at, video_urls, center_photos(path, position, alt)";
 
 export const regionSlug = (region: string) => slugify(region);
 export const centerPath = (c: Pick<Center, "region" | "slug">) => `/diving/${regionSlug(c.region)}/${c.slug}`;
@@ -135,3 +137,6 @@ export async function listRegionCounts() {
 
 // Test listings ("[TEST] …") stay out of search engines until real data replaces them.
 export const isTestCenter = (c: Pick<Center, "name">) => c.name.startsWith("[TEST]");
+
+// Photos ordered for display; position 0 is the cover.
+export const sortedPhotos = (c: Pick<Center, "center_photos">) => [...(c.center_photos ?? [])].sort((a, b) => a.position - b.position);

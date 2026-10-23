@@ -4,8 +4,11 @@ import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { CenterBadges } from "@/components/centers/center-badges";
 import { MapPanel } from "@/components/centers/map-panel";
-import { PhotoTone } from "@/components/centers/photo-tone";
-import { centerPath, getCenter, isTestCenter, regionSlug, type Center } from "@/lib/centers";
+import { CenterPhoto } from "@/components/centers/center-photo";
+import { VideoList } from "@/components/centers/video-list";
+import { parseVideo, type Video } from "@/lib/videos";
+import { photoUrl } from "@/lib/photos";
+import { centerPath, getCenter, isTestCenter, regionSlug, sortedPhotos, type Center } from "@/lib/centers";
 import { LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import { ContactForm } from "@/components/centers/contact-form";
 import { TrackedLink } from "@/components/centers/tracked-link";
@@ -40,12 +43,15 @@ export default async function CenterPage({ params }: Props) {
   const c = await getCenter(regione, slug);
   if (!c) notFound();
   const [{ reviews, error: reviewsError }, rating] = await Promise.all([getPublishedReviews(c.id), getRating(c.id)]);
+  const photos = sortedPhotos(c);
+  const videos = c.video_urls.map(parseVideo).filter((v): v is Video => v !== null);
 
   // schema.org LocalBusiness for search engines, with AggregateRating once there are published reviews.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: c.name,
+    image: photos.length ? photos.map((p) => photoUrl(p.path)) : undefined,
     url: `${siteUrl()}${centerPath(c)}`,
     description: c.description ?? undefined,
     telephone: c.phone ?? undefined,
@@ -89,7 +95,18 @@ export default async function CenterPage({ params }: Props) {
       <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-8">
           <header className="space-y-2">
-            <PhotoTone seed={c.slug} className="mb-4 h-44 rounded-2xl sm:h-56" />
+            <CenterPhoto photo={photos[0]} seed={c.slug} alt={c.name} priority className="mb-2 h-56 rounded-2xl sm:h-72" sizes="(min-width: 1024px) 760px, 100vw" />
+            {photos.length > 1 && (
+              <ul className="mb-4 flex snap-x gap-2 overflow-x-auto pb-1" aria-label="Altre foto">
+                {photos.slice(1).map((p) => (
+                  <li key={p.path} className="shrink-0 snap-start">
+                    <a href={photoUrl(p.path)} target="_blank" rel="noopener" className="block">
+                      <CenterPhoto photo={p} seed={c.slug} alt={c.name} className="h-20 w-28 rounded-xl sm:h-24 sm:w-36" sizes="144px" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
             <h1 className="text-3xl font-semibold tracking-tight">{c.name}</h1>
             <p className="text-muted-foreground">{location(c)}, {c.region}</p>
             <CenterBadges center={c} />
@@ -112,6 +129,13 @@ export default async function CenterPage({ params }: Props) {
               <ul className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
                 {c.services.map((s) => <li key={s}>{label(SERVICE_LABELS, s)}</li>)}
               </ul>
+            </section>
+          )}
+
+          {videos.length > 0 && (
+            <section aria-labelledby="video">
+              <h2 id="video" className="text-lg font-medium">Video</h2>
+              <VideoList videos={videos} centerName={c.name} />
             </section>
           )}
 
