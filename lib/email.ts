@@ -92,3 +92,17 @@ export function sendRemovalEmail(r: { centerName: string; name: string; email: s
 <p>Verifica che sia il titolare (rispondi a questa email), poi elimina la scheda in Supabase e segna la richiesta come <code>done</code> nella tabella <code>removal_requests</code>. Impegno: entro 7 giorni.</p>`,
   });
 }
+
+// Sent by the daily job when a moderator rejects or removes a review.
+export function sendReviewRejectedEmail(r: { to: string; centerName: string; note: string | null }) {
+  const reason = r.note?.trim() || "La recensione non rispetta le regole di pubblicazione.";
+  return sendEmail({
+    to: r.to,
+    subject: `La tua recensione di ${r.centerName} non è stata pubblicata`,
+    text: `Ciao,\n\nla tua recensione di ${r.centerName} non è stata pubblicata o è stata rimossa.\n\nMotivo: ${reason}\n\nLe regole sono qui: ${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/termini\nSe pensi che sia un errore, rispondi a questa email.\n\nDiveAdvisor`,
+    html: `<p>Ciao,</p><p>la tua recensione di ${esc(r.centerName)} non è stata pubblicata o è stata rimossa.</p>
+<p><strong>Motivo:</strong> ${esc(reason)}</p>
+<p>Le regole sono nei <a href="${esc(process.env.NEXT_PUBLIC_SITE_URL ?? "")}/termini">termini d'uso</a>. Se pensi che sia un errore, rispondi a questa email.</p><p>DiveAdvisor</p>`,
+    replyTo: adminInbox(),
+  });
+}

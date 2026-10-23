@@ -119,3 +119,10 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Bozze legali (marcate "Bozza in revisione"): `/termini` (utenti, regole recensioni, diving, sponsor, segnalazioni, responsabilità), `/privacy` (titolare Tommaso, dati e basi giuridiche, cookie solo tecnici, fornitori e trasferimenti, conservazione, diritti, età minima 14), `/come-verifichiamo-le-recensioni` (Codice del Consumo art. 21). Contatto da `NEXT_PUBLIC_CONTACT_EMAIL`.
 - Consensi: al login (termini + privacy + almeno 14 anni) e nel form recensione (regole), verificati anche lato server. Link nel footer, sotto le recensioni e in sitemap.
 - **Da fare per rispettare quanto scritto nelle bozze**: (1) cancellazione automatica dei messaggi ai diving dopo 24 mesi; (2) email di spiegazione all'autore quando una recensione viene rifiutata o rimossa; (3) revisione da un professionista prima dell'apertura pubblica; (4) email di contatto sul dominio.
+
+## Promesse delle bozze legali: conservazione e avviso di rifiuto
+- **Migrazione `20261024020000_moderation_notes.sql`** — applicata. `reviews.moderation_note` (motivo per l'autore) e `rejection_notified_at`; permessi di colonna: anon/authenticated non possono leggere queste due colonne via API. Advisor: nessun nuovo avviso.
+- Job giornaliero `/api/cron/daily` (Vercel Cron, 06:00 UTC, `vercel.json`), protetto da `CRON_SECRET` (variabile "sensitive" creata nel progetto Vercel, anche in `.env.local`): elimina i messaggi ai diving più vecchi di 24 mesi; invia una volta all'autore l'email di rifiuto con il motivo. Se l'invio fallisce riprova il giorno dopo.
+- Nota: finché Resend usa il mittente di prova (senza dominio), le email arrivano solo all'indirizzo del proprietario dell'account Resend; con il dominio (dicembre) arriveranno a tutti.
+- `docs/moderation.md` aggiornato: scrivere il motivo in `moderation_note` quando si rifiuta.
+- Test: `tests/cron.spec.ts` (401 senza segreto; esecuzione con segreto sulla preview).
