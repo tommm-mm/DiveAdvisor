@@ -19,7 +19,7 @@ test("find a centre: list -> filter -> centre page", async ({ page, isMobile }) 
 
   await expect(page).toHaveURL(/\/diving\/[a-z-]+\/[a-z0-9-]+$/);
   await expect(page.getByRole("heading", { name: "Scrivi al diving" })).toBeVisible();
-  await expect(page.getByText("Nessuna recensione", { exact: true })).toBeVisible();
+  await expect(page.getByText("Nessuna recensione ancora", { exact: true })).toBeVisible();
   await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);
 });
 

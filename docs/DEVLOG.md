@@ -22,3 +22,17 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
    - Vista `center_ratings` (`security_invoker`): medie per criterio e conteggio, solo recensioni pubblicate.
    - Funzione `submit_verified_review` (solo `service_role`): blocca il codice (`for update`), inserisce la recensione verificata e pubblicata, segna il codice come usato, tutto in una transazione.
    - Advisor di sicurezza dopo la migrazione: solo l'avviso preesistente "Leaked password protection" (irrilevante: usiamo magic link).
+2. **Librerie** — `lib/review-utils.ts` (criteri, tipi, formati, condivisi client/server), `lib/reviews.ts` (letture pubbliche), `lib/codes.ts` (generazione codici, solo server, `crypto.randomInt`). `lib/email.ts` rifattorizzato in un helper unico + email per nuova recensione verificata (al diving), moderazione e segnalazione (a `ADMIN_EMAIL`, fallback `LEAD_EMAIL_OVERRIDE`).
+3. **Form recensione** `/diving/[regione]/[slug]/recensione` — login obbligatorio (ritorno al form con `?codice=`), 6 criteri 1–5, data (non futura, ultimi 12 mesi), testo 40–2000, codice facoltativo, Turnstile. Validazione zod lato server. Con codice: RPC `submit_verified_review` (service role). Senza: insert con il client dell'utente (RLS permette solo `pending`). Blocchi: già recensito, recensire il proprio centro.
+4. **Scheda** — sezione recensioni con medie per criterio, badge "Verificata" / "Non verificata", risposta del diving, link "Segnala" (form, richiede login), stati vuoto/errore, `AggregateRating` nello schema.org.
+5. **Dashboard** — "Genera codice" (insert con RLS del titolare), elenco codici con stato attivo/usato/scaduto, copia codice/link, QR (SVG generato lato server con `qrcode`, link sull'host corrente). Recensioni del centro (anche in moderazione) con risposta pubblica, salvata via service role dopo controllo di proprietà. Nessuna cancellazione.
+6. **Moderazione** — procedura in `docs/moderation.md`.
+7. **Test** — `tests/reviews.spec.ts` + helper `tests/helpers/auth.ts` (login con password, cookie copiati nel browser: niente magic link nei test). `playwright.config.ts` carica `.env.local` e accetta `E2E_BASE_URL` per testare una preview.
+   - Utenti di test creati via SQL (password in `.env.local` come `E2E_PASSWORD`, mai committata): `e2e-owner@diveadvisor.test` (titolare di **[TEST] Verbano Tech Prova**, ruolo `center_owner`) e `e2e-diver@diveadvisor.test`.
+   - In locale manca la service role key: il flusso verificato end-to-end gira solo sulla preview Vercel.
+   - Aggiornati due test vecchi: testo "Nessuna recensione ancora"; link di rivendicazione testato su Bellagio (Como Deep Prova ora è rivendicata).
+   - Pulizia dopo una corsa e2e (il diver può recensire un centro una sola volta):
+     ```sql
+     delete from reviews where user_id = (select id from auth.users where email = 'e2e-diver@diveadvisor.test');
+     delete from verification_codes where center_id = (select id from dive_centers where slug = 'test-verbano-tech-prova-verbania');
+     ```
