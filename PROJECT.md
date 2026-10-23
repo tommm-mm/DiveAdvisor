@@ -1,4 +1,4 @@
-# [NOME] — La piattaforma italiana per trovare e contattare i diving
+# DiveAdvisor — La piattaforma italiana per trovare e contattare i diving
 
 Documento di progetto v2 (21 ottobre 2026). Da tenere nel repository come `PROJECT.md`. Le regole operative per Claude Code sono in `CLAUDE.md`.
 

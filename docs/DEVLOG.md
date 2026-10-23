@@ -43,3 +43,10 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 10. **Test sulla preview protetta** — Vercel richiede login sulle preview: `tests/helpers/global-setup.ts` apre un link di condivisione temporaneo (`VERCEL_SHARE_TOKEN`, generato con il connettore Vercel, scade in 23 ore) e riusa il cookie. Comando:
     `E2E_BASE_URL=<url preview> VERCEL_SHARE_TOKEN=<token> PW_CHROMIUM_PATH=... npx playwright test`
     Nota: il connettore Supabase chiede conferma per i `delete`; senza risposta va in timeout.
+
+## Decisioni di prodotto (23/10/2026)
+- Nome definitivo: **DiveAdvisor** (aggiornati `CLAUDE.md` e `PROJECT.md`).
+- Foto: per la bozza foto stock gratuite (Unsplash) chiaramente di prova; foto ufficiali dei diving più avanti.
+- Audit UI/UX: dopo aver completato altre funzionalità e una bozza solida.
+- P.IVA: da aprire solo all'arrivo dei primi ricavi (sentire un commercialista circa un mese prima). Titolare del trattamento: Tommaso.
+- Lancio: sito online e curato prima di proporlo ai diving; lancio pubblico prima settimana di febbraio 2027, EUDI il 17 febbraio. Dominio acquistato a dicembre.
