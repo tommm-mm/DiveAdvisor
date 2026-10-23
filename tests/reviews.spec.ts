@@ -36,7 +36,8 @@ test.describe("logged in", () => {
 
   test("verified review end to end: code, review, owner reply", async ({ browser, baseURL }) => {
     // 1. Owner generates a code in the dashboard.
-    const ownerCtx = await browser.newContext();
+    const shared = process.env.VERCEL_SHARE_TOKEN ? { storageState: "test-results/vercel-share.json" } : {};
+    const ownerCtx = await browser.newContext(shared);
     await signIn(ownerCtx, E2E_OWNER, baseURL!);
     const owner = await ownerCtx.newPage();
     await owner.goto("/dashboard");
@@ -45,7 +46,7 @@ test.describe("logged in", () => {
     expect(code).toMatch(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/);
 
     // 2. Diver opens the prefilled link and submits the review.
-    const diverCtx = await browser.newContext();
+    const diverCtx = await browser.newContext(shared);
     await signIn(diverCtx, E2E_DIVER, baseURL!);
     const diver = await diverCtx.newPage();
     await diver.goto(`${E2E_CENTER}/recensione?codice=${code}`);
@@ -57,6 +58,8 @@ test.describe("logged in", () => {
     await diver.getByLabel("Data dell'immersione").fill(today);
     const text = `[TEST] Immersione E2E ${Date.now()}: briefing chiaro, gruppo piccolo, attrezzatura in ordine.`;
     await diver.getByLabel("La tua esperienza").fill(text);
+    // Wait for the Turnstile widget to issue its token (real users are never this fast).
+    await expect(diver.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
     await diver.getByRole("button", { name: "Pubblica recensione" }).click();
     await expect(diver.getByText("Recensione pubblicata")).toBeVisible();
 
@@ -80,7 +83,7 @@ test.describe("logged in", () => {
 
     // 6. A second review for the same centre is not allowed.
     await diver.goto(`${E2E_CENTER}/recensione`);
-    await expect(diver.getByText("Hai già recensito questo diving")).toBeVisible();
+    await expect(diver.getByText("Puoi scrivere una sola recensione per diving.", { exact: false })).toBeVisible();
 
     await ownerCtx.close();
     await diverCtx.close();

@@ -5,16 +5,15 @@ import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
 // By default runs against a local production build. Set E2E_BASE_URL to test a deployed preview instead
-// (plus VERCEL_BYPASS_SECRET if the deployment is protected).
+// (plus VERCEL_SHARE_TOKEN, the `_vercel_share` value of a share link, if the deployment is protected).
 const remote = process.env.E2E_BASE_URL;
 
 export default defineConfig({
   testDir: "tests",
+  globalSetup: "./tests/helpers/global-setup.ts",
   use: {
     baseURL: remote ?? "http://localhost:3100",
-    extraHTTPHeaders: process.env.VERCEL_BYPASS_SECRET
-      ? { "x-vercel-protection-bypass": process.env.VERCEL_BYPASS_SECRET, "x-vercel-set-bypass-cookie": "true" }
-      : undefined,
+    storageState: process.env.VERCEL_SHARE_TOKEN ? "test-results/vercel-share.json" : undefined,
     // Optional: point to a preinstalled Chromium (e.g. cloud sandboxes) instead of downloading one.
     launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
   },

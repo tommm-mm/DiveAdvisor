@@ -15,6 +15,5 @@ export async function signIn(context: BrowserContext, email: string, baseURL: st
   });
   const { error } = await supabase.auth.signInWithPassword({ email, password: process.env.E2E_PASSWORD! });
   if (error) throw error;
-  await context.clearCookies();
   await context.addCookies(jar.map((c) => ({ ...c, url: baseURL })));
 }

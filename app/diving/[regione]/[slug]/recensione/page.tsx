@@ -28,7 +28,7 @@ export default async function ReviewPage({ params, searchParams }: Props) {
 
   const supabase = await createClient();
   const { data: existing } = await supabase
-    .from("reviews").select("status").eq("center_id", c.id).eq("user_id", user.id).maybeSingle();
+    .from("reviews").select("status, verified").eq("center_id", c.id).eq("user_id", user.id).maybeSingle();
 
   return (
     <main className="mx-auto max-w-xl px-4 py-8">
@@ -37,10 +37,17 @@ export default async function ReviewPage({ params, searchParams }: Props) {
       </nav>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight">Recensisci {c.name}</h1>
       {existing ? (
+        // Also reached right after submitting: the action revalidates this page, which re-renders here.
         <div role="status" className="mt-6 rounded-lg bg-muted p-4">
-          <p className="font-medium">Hai già recensito questo diving</p>
+          <p className="font-medium">
+            {existing.status === "pending" ? "Recensione inviata" : existing.verified ? "Recensione pubblicata" : "Hai già recensito questo diving"}
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {existing.status === "pending" ? "La tua recensione è in attesa di moderazione." : "Puoi scrivere una sola recensione per diving."}
+            {existing.status === "pending"
+              ? "Grazie. La pubblicheremo dopo un controllo, con l'etichetta non verificata."
+              : existing.verified
+                ? "Grazie. La tua recensione verificata è visibile nella scheda. Puoi scrivere una sola recensione per diving."
+                : "Puoi scrivere una sola recensione per diving."}
           </p>
           <Link href={centerPath(c)} className="mt-3 inline-block text-sm text-primary underline-offset-4 hover:underline">Torna alla scheda</Link>
         </div>
