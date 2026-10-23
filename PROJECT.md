@@ -287,3 +287,15 @@ Espansione: Mediterraneo ed estero dall'anno successivo, da discutere. Community
 P.IVA all'arrivo dei primi ricavi (ads, affiliazioni, diving paganti).
 
 **Crescita (bozza):** volano diving → codici → recensioni → SEO → subacquei → contatti → più diving. Canali: QR/widget "Recensiscici" nei diving, pagine SEO per zona e tipo di corso, gruppi e club (socio), contenuti social. Sponsor: servono prima i dati (analytics) e un media kit; target marchi italiani (Cressi, Mares, Seac, Omer), DAN Europe, agenzie viaggi; primi accordi realistici da estate 2027. Affiliazioni: Amazon, reti tipo Awin/Tradedoubler, Booking/GetYourGuide; sentire il commercialista prima di attivarle.
+
+**Sponsor (processo):** lista prospect (locale → nicchia → grandi marchi) → pitch sul loro obiettivo → proposta a 3 pacchetti → accordo di una pagina (3–6 mesi, etichetta "sponsorizzato") → report mensile → rinnovo. Attenzione: concorsi a premi regolati (DPR 430/2001); contenuti sponsorizzati sempre etichettati.
+**Alloggi:** (1) affiliazione Booking; (2) "convenzionato" con codice sconto, fee per prenotazione o fissa mensile; (3) pacchetti diving + alloggio creati da diving e hotel. Noi promuoviamo, non vendiamo (vendere pacchetti = tour operator). Affitti brevi: mostrare il CIN.
+
+### Sprint 4 — checkpoint
+1. Stile AB (colori, font, header con foto, card) su home, elenco, scheda
+2. SEO (sitemap, robots, canonical, OG, pagine per regione e tipo, schema.org, velocità)
+3. Pagina "Per i diving"
+4. Strumenti per i diving (poster QR, badge recensioni, email "sei in elenco", `/rimuovi-scheda`, statistiche)
+5. Analytics senza cookie (Vercel Analytics)
+6. Bozze legali (`/termini`, privacy, come verifichiamo, consensi, footer)
+Dopo: blog sul sito, newsletter (Beehiiv/Brevo), kit contenuti social.
