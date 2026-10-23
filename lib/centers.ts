@@ -117,3 +117,13 @@ export async function getCenter(regionSlugParam: string, slug: string): Promise<
   if (!data || regionSlug(data.region) !== regionSlugParam) return null;
   return data as Center;
 }
+
+// Regions with their number of centres, most centres first (home page tiles).
+export async function listRegionCounts() {
+  const { data, error } = await createPublicClient().from("dive_centers").select("region");
+  if (error) throw error;
+  const counts = new Map<string, number>();
+  for (const r of data) counts.set(r.region as string, (counts.get(r.region as string) ?? 0) + 1);
+  return [...counts].map(([name, count]) => ({ name, slug: regionSlug(name), count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "it"));
+}

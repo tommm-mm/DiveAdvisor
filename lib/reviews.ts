@@ -17,3 +17,10 @@ export async function getRating(centerId: string): Promise<Rating | null> {
   return (data as Rating | null) ?? null;
 }
 
+
+// Ratings for many centres in one query (list pages), keyed by centre id.
+export async function getRatings(centerIds: string[]): Promise<Map<string, Rating>> {
+  if (!centerIds.length) return new Map();
+  const { data } = await createPublicClient().from("center_ratings").select("*").in("center_id", centerIds);
+  return new Map(((data ?? []) as (Rating & { center_id: string })[]).map((r) => [r.center_id, r]));
+}

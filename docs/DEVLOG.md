@@ -56,3 +56,10 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - **Modello di business**: ne parla col socio; bozza in `PROJECT.md` §11.
 - **Direzione visiva**: scelta "AB" (mix di A pulito e B outdoor) come base. Nella fase UI/UX Tommaso vuole vedere molte più direzioni da analizzare: semplice, facile da navigare, piacevole.
 - **Marketing**: priorità ai diving (portano traffico e lo ricevono). Tommaso farà gruppi Facebook, blog/newsletter, Instagram/TikTok su diving, siti e sito. SEO prioritaria.
+
+## Sprint 4 — checkpoint 1: stile AB
+- Font: Inter (testo) + Fraunces (titoli h1/h2, nel layer base così `font-sans` li sovrascrive). Accento blu petrolio `oklch(0.44 0.07 213)` (#0f5e6e), sabbia `--sand` per le sezioni calde.
+- Home nuova: banda colorata con titolo, ricerca (regione + tipo, GET su `/diving`), riquadri "Dove immergersi" per regione con conteggio, "Diving in evidenza" (i meglio recensiti), invito ai titolari.
+- Card: blocco colore al posto della foto (`PhotoTone`, tono stabile dal nome), voto medio e numero recensioni (`getRatings`, una query per lista), card tutta cliccabile.
+- Foto: Unsplash blocca il download automatico da questo ambiente; i blocchi colore si sostituiscono con `<Image>` quando avremo le foto.
+- Test: il test filtri su mobile falliva ~1 volta su 3 (click prima dell'idratazione); ora riprova finché il filtro è applicato. 28/28 su 4 ripetizioni.

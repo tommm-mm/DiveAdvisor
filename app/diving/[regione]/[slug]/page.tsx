@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { CenterBadges } from "@/components/centers/center-badges";
 import { MapPanel } from "@/components/centers/map-panel";
+import { PhotoTone } from "@/components/centers/photo-tone";
 import { centerPath, getCenter, regionSlug, type Center } from "@/lib/centers";
 import { LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import { ContactForm } from "@/components/centers/contact-form";
@@ -80,7 +81,8 @@ export default async function CenterPage({ params }: Props) {
       <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-8">
           <header className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{c.name}</h1>
+            <PhotoTone seed={c.slug} className="mb-4 h-44 rounded-2xl sm:h-56" />
+            <h1 className="text-3xl font-semibold tracking-tight">{c.name}</h1>
             <p className="text-muted-foreground">{location(c)}, {c.region}</p>
             <CenterBadges center={c} />
             {c.languages.length > 0 && (
@@ -117,7 +119,7 @@ export default async function CenterPage({ params }: Props) {
         </div>
 
         <aside aria-labelledby="contatti" className="space-y-3 lg:sticky lg:top-4 lg:self-start">
-          <div id="contatta" className="scroll-mt-4 rounded-lg border p-4">
+          <div id="contatta" className="scroll-mt-4 rounded-2xl border p-4 shadow-sm">
             <h2 id="contatti" className="font-medium">Scrivi al diving</h2>
             <div className="mt-3"><ContactForm centerId={c.id} siteKey={turnstileSiteKey()} /></div>
             {contacts.length > 0 && (

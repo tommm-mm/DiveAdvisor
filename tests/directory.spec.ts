@@ -8,14 +8,18 @@ test("find a centre: list -> filter -> centre page", async ({ page, isMobile }) 
 
   // Filter by technical diving.
   if (isMobile) await page.getByRole("button", { name: /^Filtri/ }).click();
-  await page.getByRole("checkbox", { name: "Tecnico" }).click();
-  await expect(page).toHaveURL(/tipo=tecnico/);
+  // A click that lands before hydration is lost: retry until the filter is applied.
+  await expect(async () => {
+    const box = page.getByRole("checkbox", { name: "Tecnico" });
+    if (!(await box.isChecked())) await box.click();
+    await expect(page).toHaveURL(/tipo=tecnico/, { timeout: 2000 });
+  }).toPass({ timeout: 15000 });
   if (isMobile) await page.keyboard.press("Escape");
 
   // Every result must offer technical diving; open the first one.
   const first = page.getByRole("article").first();
   await expect(first.getByText("Tecnico")).toBeVisible();
-  await first.getByRole("link", { name: "Vedi scheda" }).click();
+  await first.getByRole("link").first().click();
 
   await expect(page).toHaveURL(/\/diving\/[a-z-]+\/[a-z0-9-]+$/);
   await expect(page.getByRole("heading", { name: "Scrivi al diving" })).toBeVisible();
