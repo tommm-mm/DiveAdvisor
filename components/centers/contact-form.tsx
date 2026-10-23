@@ -71,7 +71,7 @@ export function ContactForm({ centerId, siteKey }: { centerId: string; siteKey: 
         {err.privacy && <p id="c-privacy-err" className="text-sm text-destructive">{err.privacy}</p>}
       </div>
 
-      <div ref={widget} className="cf-turnstile" data-sitekey={siteKey} data-language="it" />
+      <div ref={widget} className="cf-turnstile" data-size="flexible" data-sitekey={siteKey} data-language="it" />
       {state.message && <p role="alert" className="text-sm text-destructive">{state.message}</p>}
       <Button type="submit" className="h-10 w-full" disabled={pending}>
         {pending ? "Invio in corso" : "Invia richiesta"}

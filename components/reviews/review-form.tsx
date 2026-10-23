@@ -92,7 +92,7 @@ export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props)
           : <p id="r-code-hint" className="text-xs text-muted-foreground">Te lo dà il diving dopo l&apos;immersione. Senza codice la recensione viene controllata prima della pubblicazione.</p>}
       </div>
 
-      <div ref={widget} className="cf-turnstile" data-sitekey={siteKey} data-language="it" />
+      <div ref={widget} className="cf-turnstile" data-size="flexible" data-sitekey={siteKey} data-language="it" />
       {state.message && <p role="alert" className="text-sm text-destructive">{state.message}</p>}
       <Button type="submit" className="h-11 w-full" disabled={pending}>
         {pending ? "Invio in corso" : "Pubblica recensione"}
