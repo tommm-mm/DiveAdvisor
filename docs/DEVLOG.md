@@ -68,3 +68,9 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Per ogni cosa da provare: PR con anteprima Vercel → Tommaso prova e dà feedback → merge. Checkpoint senza nulla da provare restano sul branch.
 - Instagram gestito da Tommaso (luoghi, diving, consigli, alloggi, dietro le quinte); contenuti pagati sempre etichettati.
 - Sponsor: mai influenzano voti o recensioni; solo badge "Partner" e spazi in evidenza etichettati. EUDI = networking, vendita da primavera, accordi con alloggi dall'estate.
+
+## Decisioni (23/10/2026, sera)
+- Schede: le aggiungiamo noi con dati pubblici verificati (scheda "non rivendicata"), poi contattiamo il diving.
+- Negozi e scuole: sì, più avanti (tabelle/tipo attività separati, recensioni negozi dopo).
+- Pagina `/eudi` con modulo "Aggiungi la tua attività": approvata, da fare a gennaio (con dominio ed email); deve attirare sia attività sia subacquei.
+- Marketing e strategia: Tommaso usa un Claude Project separato; il brief non sta su GitHub.
