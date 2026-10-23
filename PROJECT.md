@@ -285,3 +285,5 @@ Priorità: prima trazione, utenti e un sito utile. È un progetto nato per noi d
 
 Espansione: Mediterraneo ed estero dall'anno successivo, da discutere. Community (logbook, siti) da valutare.
 P.IVA all'arrivo dei primi ricavi (ads, affiliazioni, diving paganti).
+
+**Crescita (bozza):** volano diving → codici → recensioni → SEO → subacquei → contatti → più diving. Canali: QR/widget "Recensiscici" nei diving, pagine SEO per zona e tipo di corso, gruppi e club (socio), contenuti social. Sponsor: servono prima i dati (analytics) e un media kit; target marchi italiani (Cressi, Mares, Seac, Omer), DAN Europe, agenzie viaggi; primi accordi realistici da estate 2027. Affiliazioni: Amazon, reti tipo Awin/Tradedoubler, Booking/GetYourGuide; sentire il commercialista prima di attivarle.
