@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { DIVE_TYPE_LABELS, LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import type { FilterOptions } from "@/lib/centers";
 
-type Props = { options: FilterOptions; showRegion?: boolean };
+type Props = { options: FilterOptions; showRegion?: boolean; showType?: boolean };
 
 // Filters only rewrite the URL; the server component re-renders with the new results.
-export function Filters({ options, showRegion = true }: Props) {
+export function Filters({ options, showRegion = true, showType = true }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -29,6 +29,12 @@ export function Filters({ options, showRegion = true }: Props) {
     push(next);
   };
 
+  const setName = (value: string) => {
+    const next = new URLSearchParams(params);
+    if (value.trim()) next.set("q", value.trim()); else next.delete("q");
+    if (next.toString() !== params.toString()) push(next);
+  };
+
   const setRegion = (value: string) => {
     const next = new URLSearchParams(params);
     if (value) next.set("regione", value); else next.delete("regione");
@@ -36,7 +42,8 @@ export function Filters({ options, showRegion = true }: Props) {
   };
 
   const groups = [
-    { key: "tipo", title: "Tipo di immersione", values: options.diveTypes, map: DIVE_TYPE_LABELS },
+    // Dive type pages (/immersioni/…) fix the type in the path, so the group is hidden there.
+    ...(showType ? [{ key: "tipo", title: "Tipo di immersione", values: options.diveTypes, map: DIVE_TYPE_LABELS }] : []),
     { key: "federazione", title: "Federazione", values: options.federations, map: {} },
     { key: "lingua", title: "Lingue parlate", values: options.languages, map: LANGUAGE_LABELS },
     { key: "servizio", title: "Servizi", values: options.services, map: SERVICE_LABELS },
@@ -44,6 +51,18 @@ export function Filters({ options, showRegion = true }: Props) {
 
   return (
     <div className="space-y-6" aria-busy={pending}>
+      <div className="space-y-2">
+        <Label htmlFor="filter-name">Nome del diving</Label>
+        <input
+          id="filter-name"
+          type="search"
+          defaultValue={params.get("q") ?? ""}
+          placeholder="Cerca per nome"
+          className="h-9 w-full rounded-lg border bg-background px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          onKeyDown={(e) => { if (e.key === "Enter") setName(e.currentTarget.value); }}
+          onBlur={(e) => setName(e.currentTarget.value)}
+        />
+      </div>
       {showRegion && (
         <div className="space-y-2">
           <Label htmlFor="filter-region">Regione</Label>

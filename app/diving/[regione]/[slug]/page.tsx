@@ -5,13 +5,15 @@ import { buttonVariants } from "@/components/ui/button";
 import { CenterBadges } from "@/components/centers/center-badges";
 import { MapPanel } from "@/components/centers/map-panel";
 import { PhotoTone } from "@/components/centers/photo-tone";
-import { centerPath, getCenter, regionSlug, type Center } from "@/lib/centers";
+import { centerPath, getCenter, isTestCenter, regionSlug, type Center } from "@/lib/centers";
 import { LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import { ContactForm } from "@/components/centers/contact-form";
 import { TrackedLink } from "@/components/centers/tracked-link";
 import { turnstileSiteKey } from "@/lib/turnstile";
 import { getPublishedReviews, getRating } from "@/lib/reviews";
 import { ReviewsSection } from "@/components/reviews/reviews-section";
+import { JsonLd, breadcrumbLd } from "@/components/json-ld";
+import { siteUrl } from "@/lib/site";
 
 type Props = { params: Promise<{ regione: string; slug: string }> };
 
@@ -29,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${c.name} – diving a ${c.city ?? c.region}`,
     description: c.description ?? `${c.name}, diving a ${location(c)}, ${c.region}. Servizi, lingue e contatti.`,
     alternates: { canonical: centerPath(c) },
+    robots: isTestCenter(c) ? { index: false } : undefined,
   };
 }
 
@@ -43,10 +46,11 @@ export default async function CenterPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: c.name,
+    url: `${siteUrl()}${centerPath(c)}`,
     description: c.description ?? undefined,
     telephone: c.phone ?? undefined,
     email: c.email ?? undefined,
-    url: c.website ?? undefined,
+    sameAs: [c.website, c.instagram?.startsWith("http") ? c.instagram : undefined].filter(Boolean),
     address: {
       "@type": "PostalAddress",
       streetAddress: c.address ?? undefined,
@@ -70,7 +74,11 @@ export default async function CenterPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 pb-24 lg:pb-6">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <JsonLd data={[jsonLd, breadcrumbLd([
+        { name: "Diving", path: "/diving" },
+        { name: c.region, path: `/diving/${regionSlug(c.region)}` },
+        { name: c.name, path: centerPath(c) },
+      ])]} />
 
       <nav aria-label="Percorso" className="text-sm text-muted-foreground">
         <Link href="/diving" className="hover:text-primary">Diving</Link>

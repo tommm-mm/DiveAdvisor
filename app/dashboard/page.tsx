@@ -63,7 +63,10 @@ export default async function DashboardPage() {
       <h1 className="text-2xl font-semibold tracking-tight">Area diving</h1>
       <ul className="mt-2 flex flex-wrap gap-x-4 text-sm">
         {centers.map((c) => (
-          <li key={c.id}><Link href={centerPath(c)} className="text-primary underline-offset-4 hover:underline">{c.name}</Link></li>
+          <li key={c.id} className="flex flex-wrap gap-x-3">
+            <Link href={centerPath(c)} className="text-primary underline-offset-4 hover:underline">{c.name}</Link>
+            <Link href={`/dashboard/scheda/${c.id}`} className="text-primary underline-offset-4 hover:underline">Modifica scheda</Link>
+          </li>
         ))}
       </ul>
 

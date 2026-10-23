@@ -28,6 +28,7 @@ export type Center = {
 
 export type CenterFilters = {
   regione?: string; // region slug
+  q?: string; // free text on the centre name
   tipo: string[];
   federazione: string[];
   lingua: string[];
@@ -52,8 +53,10 @@ export const centerPath = (c: Pick<Center, "region" | "slug">) => `/diving/${reg
 export function parseFilters(params: Record<string, string | string[] | undefined>): CenterFilters {
   const arr = (v: string | string[] | undefined) => (v === undefined ? [] : Array.isArray(v) ? v : [v]).filter(Boolean);
   const regione = arr(params.regione)[0];
+  const q = arr(params.q)[0]?.trim().slice(0, 80) || undefined;
   return {
     regione,
+    q,
     tipo: arr(params.tipo),
     federazione: arr(params.federazione),
     lingua: arr(params.lingua),
@@ -81,6 +84,8 @@ export async function listCenters(filters: CenterFilters): Promise<Center[]> {
     if (!region) return [];
     query = query.eq("region", region.name);
   }
+  // Escape LIKE wildcards so user input is matched literally.
+  if (filters.q) query = query.ilike("name", `%${filters.q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`);
   if (filters.tipo.length) query = query.overlaps("dive_types", filters.tipo);
   if (filters.federazione.length) query = query.overlaps("federations", filters.federazione);
   if (filters.lingua.length) query = query.overlaps("languages", filters.lingua);
@@ -127,3 +132,6 @@ export async function listRegionCounts() {
   return [...counts].map(([name, count]) => ({ name, slug: regionSlug(name), count }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "it"));
 }
+
+// Test listings ("[TEST] …") stay out of search engines until real data replaces them.
+export const isTestCenter = (c: Pick<Center, "name">) => c.name.startsWith("[TEST]");

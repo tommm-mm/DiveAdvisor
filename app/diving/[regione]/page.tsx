@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Diving in ${region.name}`,
     description: `I diving in ${region.name}: tipi di immersione, federazioni, servizi e contatti.`,
+    alternates: { canonical: `/diving/${region.slug}` },
   };
 }
 
@@ -32,6 +33,7 @@ export default async function RegionPage({ params, searchParams }: Props) {
         filters={filters}
         showRegion={false}
         resetHref={`/diving/${regione}`}
+        breadcrumbs={[{ name: "DiveAdvisor", path: "/" }, { name: "Diving", path: "/diving" }, { name: region.name, path: `/diving/${regione}` }]}
       />
     </Suspense>
   );
