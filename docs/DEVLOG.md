@@ -63,3 +63,8 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Card: blocco colore al posto della foto (`PhotoTone`, tono stabile dal nome), voto medio e numero recensioni (`getRatings`, una query per lista), card tutta cliccabile.
 - Foto: Unsplash blocca il download automatico da questo ambiente; i blocchi colore si sostituiscono con `<Image>` quando avremo le foto.
 - Test: il test filtri su mobile falliva ~1 volta su 3 (click prima dell'idratazione); ora riprova finché il filtro è applicato. 28/28 su 4 ripetizioni.
+
+## Regole di lavoro (23/10/2026)
+- Per ogni cosa da provare: PR con anteprima Vercel → Tommaso prova e dà feedback → merge. Checkpoint senza nulla da provare restano sul branch.
+- Instagram gestito da Tommaso (luoghi, diving, consigli, alloggi, dietro le quinte); contenuti pagati sempre etichettati.
+- Sponsor: mai influenzano voti o recensioni; solo badge "Partner" e spazi in evidenza etichettati. EUDI = networking, vendita da primavera, accordi con alloggi dall'estate.
