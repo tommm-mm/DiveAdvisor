@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { centerPath } from "@/lib/centers";
 import { DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
+import { parseVideo } from "@/lib/videos";
 
 export type EditState = {
   status: "idle" | "saved" | "error"; message?: string; fieldErrors?: Record<string, string>;
@@ -29,6 +30,10 @@ const schema = z.object({
   dive_types: oneOf(Object.keys(DIVE_TYPE_LABELS)),
   services: oneOf(Object.keys(SERVICE_LABELS)),
   languages: oneOf(Object.keys(LANGUAGE_LABELS)),
+  video_urls: z.array(z.string().trim()).max(3)
+    .transform((vs) => vs.filter(Boolean))
+    .refine((vs) => vs.every((v) => parseVideo(v)), "Usa un link di YouTube o di un post/reel Instagram (https://…)")
+    .transform((vs) => vs.map((v) => parseVideo(v)!.url)),
 });
 
 // RLS ("centers: owner update") and the column grant restrict this to the owner and to these fields.
@@ -39,6 +44,7 @@ export async function updateCenter(_prev: EditState, form: FormData): Promise<Ed
     description: text("description"), address: text("address"), phone: text("phone"), whatsapp: text("whatsapp"),
     email: text("email").trim(), website: text("website").trim(), instagram: text("instagram"), season: text("season"),
     federations: lists("federations"), dive_types: lists("dive_types"), services: lists("services"), languages: lists("languages"),
+    video_urls: lists("video_urls"),
   };
   const parsed = schema.safeParse({ id: form.get("id"), ...values });
   if (!parsed.success) {
@@ -53,4 +59,14 @@ export async function updateCenter(_prev: EditState, form: FormData): Promise<Ed
   revalidatePath(centerPath(data));
   revalidatePath("/dashboard");
   return { status: "saved", values };
+}
+
+// Called by the photo manager after uploads/deletes (done in the browser under RLS) so public pages refresh.
+export async function photosChanged(centerId: string) {
+  if (!z.uuid().safeParse(centerId).success) return;
+  const supabase = await createClient();
+  const { data } = await supabase.from("dive_centers").select("slug, region").eq("id", centerId).maybeSingle();
+  if (data) revalidatePath(centerPath(data));
+  revalidatePath("/");
+  revalidatePath("/diving", "layout");
 }

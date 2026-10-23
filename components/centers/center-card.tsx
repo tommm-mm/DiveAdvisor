@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CenterBadges } from "@/components/centers/center-badges";
-import { PhotoTone } from "@/components/centers/photo-tone";
-import { centerPath, type Center } from "@/lib/centers";
+import { CenterPhoto } from "@/components/centers/center-photo";
+import { centerPath, sortedPhotos, type Center } from "@/lib/centers";
 import type { Rating } from "@/lib/review-utils";
 
 const one = (n: number) => Number(n).toLocaleString("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -9,7 +9,7 @@ const one = (n: number) => Number(n).toLocaleString("it-IT", { minimumFractionDi
 export function CenterCard({ center, rating }: { center: Center; rating?: Rating }) {
   return (
     <article className="group relative overflow-hidden rounded-2xl border bg-card transition-shadow hover:shadow-md">
-      <PhotoTone seed={center.slug} className="h-24 sm:h-32" />
+      <CenterPhoto photo={sortedPhotos(center)[0]} seed={center.slug} alt={center.name} className="h-24 sm:h-32" sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
       <div className="space-y-2 p-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-sans text-base font-semibold leading-snug">

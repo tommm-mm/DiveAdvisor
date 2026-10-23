@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { centerPath } from "@/lib/centers";
 import { EditCenterForm } from "@/components/dashboard/edit-center-form";
+import { PhotoManager } from "@/components/dashboard/photo-manager";
 
 export const metadata: Metadata = { title: "Modifica scheda", robots: { index: false } };
 
@@ -14,7 +15,7 @@ export default async function EditCenterPage({ params }: { params: Promise<{ id:
   const supabase = await createClient();
   const { data: c } = await supabase
     .from("dive_centers")
-    .select("id, slug, name, region, owner_id, description, address, phone, whatsapp, email, website, instagram, season, federations, dive_types, services, languages")
+    .select("id, slug, name, region, owner_id, description, address, phone, whatsapp, email, website, instagram, season, federations, dive_types, services, languages, video_urls, center_photos(id, path, position)")
     .eq("id", id).maybeSingle();
   if (!c || c.owner_id !== user.id) notFound();
 
@@ -27,7 +28,8 @@ export default async function EditCenterPage({ params }: { params: Promise<{ id:
       <p className="mt-1 text-sm text-muted-foreground">
         Nome e città si cambiano scrivendoci. <Link href={centerPath(c)} className="text-primary underline-offset-4 hover:underline">Vedi la scheda pubblica</Link>
       </p>
-      <div className="mt-6"><EditCenterForm center={c} /></div>
+      <div className="mt-6"><PhotoManager centerId={c.id} centerName={c.name} initial={c.center_photos ?? []} /></div>
+      <div className="mt-8 border-t pt-6"><EditCenterForm center={c} /></div>
     </main>
   );
 }
