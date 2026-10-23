@@ -32,7 +32,8 @@ Fase attuale: bozza funzionante entro metà gennaio 2027, da portare a EUDI.
 - Quando generi qualcosa di nuovo, spiega in 2–3 righe cosa fa e perché: l'utente vuole capire il sistema, non solo averlo.
 
 ## Database e sicurezza
-- Prima di cambiare il database, mostra la migrazione SQL e aspetta conferma. Non applicare migrazioni senza approvazione.
+- Migrazioni: Claude può applicarle in autonomia (autorizzato dall'utente il 23/10/2026), purché siano versionate in `supabase/migrations/`, mai distruttive senza conferma, e ogni passo sia registrato in `docs/DEVLOG.md` (cosa, perché, esito dell'advisor di sicurezza).
+- Ogni sprint aggiorna `docs/DEVLOG.md`: passi fatti, decisioni prese, verifiche, cose rimaste aperte.
 - Ogni tabella ha Row Level Security attiva. Non disattivarla mai per comodità.
 - Regole di accesso: lettura pubblica di schede e recensioni pubblicate; scrittura solo dell'autore sulla propria recensione; modifica scheda solo del proprietario; `leads` leggibili solo dal proprietario del centro.
 - Nessuna chiave o segreto nel codice: solo variabili d'ambiente (`.env.local`, mai committato). Mantieni aggiornato `.env.example` con i nomi (senza valori).
