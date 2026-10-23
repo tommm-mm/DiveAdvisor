@@ -112,3 +112,10 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - `npm run outreach [url]`: CSV con email "La tua scheda è su DiveAdvisor" per ogni diving non rivendicato con email (esclusi i [TEST]); da inviare a mano dal nostro indirizzo. `outreach*.csv` in `.gitignore`.
 - Bug trovato dai test: arrivando a un modulo con un link interno, il widget Turnstile non compariva (lo script disegna i widget solo al primo caricamento). Nuovo componente `components/turnstile.tsx` con render esplicito, usato da contatto, recensione e rimozione.
 - Test: `tests/tools.spec.ts` (badge, contatore, rimozione via link, strumenti in dashboard, poster altrui 404).
+
+## Sprint 4 — checkpoint 5–6: analytics e bozze legali
+- Vercel Web Analytics (`@vercel/analytics`, senza cookie) nel layout. **Va attivato da Tommaso** nel progetto Vercel (Analytics → Enable): il connettore non ha un comando per farlo.
+- `vercel.json` con `regions: ["fra1"]`: le funzioni girano a Francoforte, come il database Supabase (`eu-central-1`). Dati in UE e pagine più veloci.
+- Bozze legali (marcate "Bozza in revisione"): `/termini` (utenti, regole recensioni, diving, sponsor, segnalazioni, responsabilità), `/privacy` (titolare Tommaso, dati e basi giuridiche, cookie solo tecnici, fornitori e trasferimenti, conservazione, diritti, età minima 14), `/come-verifichiamo-le-recensioni` (Codice del Consumo art. 21). Contatto da `NEXT_PUBLIC_CONTACT_EMAIL`.
+- Consensi: al login (termini + privacy + almeno 14 anni) e nel form recensione (regole), verificati anche lato server. Link nel footer, sotto le recensioni e in sitemap.
+- **Da fare per rispettare quanto scritto nelle bozze**: (1) cancellazione automatica dei messaggi ai diving dopo 24 mesi; (2) email di spiegazione all'autore quando una recensione viene rifiutata o rimossa; (3) revisione da un professionista prima dell'apertura pubblica; (4) email di contatto sul dominio.

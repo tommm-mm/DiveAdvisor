@@ -24,6 +24,8 @@ export function SiteFooter() {
             <li><Link href="/diving" className="text-muted-foreground hover:text-primary">Tutti i diving</Link></li>
             <li><Link href="/per-i-diving" className="text-muted-foreground hover:text-primary">Per i diving</Link></li>
             <li><Link href="/rimuovi-scheda" className="text-muted-foreground hover:text-primary">Rimuovi la tua scheda</Link></li>
+            <li><Link href="/come-verifichiamo-le-recensioni" className="text-muted-foreground hover:text-primary">Come verifichiamo le recensioni</Link></li>
+            <li><Link href="/termini" className="text-muted-foreground hover:text-primary">Termini d&apos;uso</Link></li>
             <li><Link href="/privacy" className="text-muted-foreground hover:text-primary">Privacy</Link></li>
           </ul>
         </nav>

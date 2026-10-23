@@ -40,7 +40,10 @@ export function ReviewsSection({ reviews, rating, error, writeUrl }: Props) {
             </dl>
           </div>
 
-          <ul className="mt-4 space-y-4">
+          <p className="mt-3 text-xs text-muted-foreground">
+            <Link href="/come-verifichiamo-le-recensioni" className="underline-offset-4 hover:underline">Come verifichiamo le recensioni</Link>
+          </p>
+          <ul className="mt-3 space-y-4">
             {reviews.map((r) => (
               <li key={r.id} className="rounded-lg border p-4">
                 <div className="flex flex-wrap items-center gap-2">

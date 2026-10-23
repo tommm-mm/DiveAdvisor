@@ -91,6 +91,17 @@ export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props)
           : <p id="r-code-hint" className="text-xs text-muted-foreground">Te lo dà il diving dopo l&apos;immersione. Senza codice la recensione viene controllata prima della pubblicazione.</p>}
       </div>
 
+      <div className="space-y-1.5">
+        <div className="flex items-start gap-2">
+          <input id="r-rules" name="rules" type="checkbox" defaultChecked={v?.rules === "on"} className="mt-0.5 size-4 accent-primary"
+            aria-invalid={!!err.rules} aria-describedby={err.rules ? "r-rules-err" : undefined} />
+          <label htmlFor="r-rules" className="text-sm">
+            Ho fatto davvero questa immersione e la recensione rispetta le <Link href="/termini" className="text-primary underline-offset-4 hover:underline">regole</Link> (niente insulti, dati personali o conflitti di interesse).
+          </label>
+        </div>
+        {err.rules && <p id="r-rules-err" className="text-sm text-destructive">{err.rules}</p>}
+      </div>
+
       <Turnstile ref={widget} siteKey={siteKey} />
       {state.message && <p role="alert" className="text-sm text-destructive">{state.message}</p>}
       <Button type="submit" className="h-11 w-full" disabled={pending}>

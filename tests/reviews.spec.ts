@@ -32,6 +32,7 @@ test.describe("logged in", () => {
     await expect(page.getByText("Inserisci la data dell'immersione")).toBeVisible();
     await expect(page.getByText("Scrivi almeno 40 caratteri")).toBeVisible();
     await expect(page.getByText("Il codice ha 8 caratteri")).toBeVisible();
+    await expect(page.getByText("Conferma che la recensione rispetta le regole")).toBeVisible();
   });
 
   test("verified review end to end: code, review, owner reply", async ({ browser, baseURL }) => {
@@ -58,6 +59,7 @@ test.describe("logged in", () => {
     await diver.getByLabel("Data dell'immersione").fill(today);
     const text = `[TEST] Immersione E2E ${Date.now()}: briefing chiaro, gruppo piccolo, attrezzatura in ordine.`;
     await diver.getByLabel("La tua esperienza").fill(text);
+    await diver.getByLabel(/Ho fatto davvero questa immersione/).check();
     // Wait for the Turnstile widget to issue its token (real users are never this fast).
     await expect(diver.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
     await diver.getByRole("button", { name: "Pubblica recensione" }).click();
@@ -89,6 +91,7 @@ test.describe("logged in", () => {
     }
     await diver.getByLabel("Data dell'immersione").fill(today);
     await diver.getByLabel("La tua esperienza").fill(`${text} Seconda volta con lo stesso codice.`);
+    await diver.getByLabel(/Ho fatto davvero questa immersione/).check();
     await expect(diver.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
     await diver.getByRole("button", { name: "Pubblica recensione" }).click();
     await expect(diver.getByText("Codice non valido, già usato o scaduto.", { exact: false })).toBeVisible();
