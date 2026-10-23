@@ -5,30 +5,44 @@ import { MobileFilters } from "@/components/centers/mobile-filters";
 import { MapPanel } from "@/components/centers/map-panel";
 import { getFilterOptions, listCenters, type CenterFilters } from "@/lib/centers";
 import { getRatings } from "@/lib/reviews";
+import { JsonLd, breadcrumbLd, type Crumb } from "@/components/json-ld";
+import { centerPath } from "@/lib/centers";
+import { siteUrl } from "@/lib/site";
 
-type Props = { title: string; intro: string; filters: CenterFilters; showRegion?: boolean; resetHref: string };
+type Props = {
+  title: string; intro: string; filters: CenterFilters; resetHref: string;
+  showRegion?: boolean; showType?: boolean;
+  breadcrumbs?: Crumb[]; // for schema.org BreadcrumbList
+};
 
-// Shared list + filters + map layout for /diving and /diving/[regione].
-export async function Directory({ title, intro, filters, showRegion = true, resetHref }: Props) {
+// Shared list + filters + map layout for /diving, /diving/[regione] and /immersioni pages.
+export async function Directory({ title, intro, filters, resetHref, showRegion = true, showType = true, breadcrumbs }: Props) {
   const [centers, options] = await Promise.all([listCenters(filters), getFilterOptions()]);
   const ratings = await getRatings(centers.map((c) => c.id));
-  const activeCount = (showRegion && filters.regione ? 1 : 0) + filters.tipo.length +
+  const activeCount = (showRegion && filters.regione ? 1 : 0) + (showType ? filters.tipo.length : 0) +
     filters.federazione.length + filters.lingua.length + filters.servizio.length;
   const mapCenters = centers.map(({ id, slug, name, region, city, lat, lng }) => ({ id, slug, name, region, city, lat, lng }));
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
+      <JsonLd data={[
+        ...(breadcrumbs ? [breadcrumbLd(breadcrumbs)] : []),
+        {
+          "@context": "https://schema.org", "@type": "ItemList", name: title,
+          itemListElement: centers.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, url: `${siteUrl()}${centerPath(c)}` })),
+        },
+      ]} />
       <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{intro}</p>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)_minmax(0,1fr)]">
         <aside className="hidden lg:block" aria-label="Filtri">
-          <Filters options={options} showRegion={showRegion} />
+          <Filters options={options} showRegion={showRegion} showType={showType} />
         </aside>
 
         <section aria-label="Risultati" className="space-y-3">
           <div className="lg:hidden">
-            <MobileFilters options={options} showRegion={showRegion} activeCount={activeCount} />
+            <MobileFilters options={options} showRegion={showRegion} showType={showType} activeCount={activeCount} />
           </div>
           <p className="text-sm text-muted-foreground" aria-live="polite">
             {centers.length === 1 ? "1 diving trovato" : `${centers.length} diving trovati`}

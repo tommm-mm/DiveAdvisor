@@ -1,10 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { JsonLd } from "@/components/json-ld";
+import { siteUrl } from "@/lib/site";
 import { buttonVariants } from "@/components/ui/button";
 import { CenterCard } from "@/components/centers/center-card";
 import { PhotoTone } from "@/components/centers/photo-tone";
 import { getFilterOptions, listCenters, listRegionCounts } from "@/lib/centers";
 import { getRatings } from "@/lib/reviews";
 import { DIVE_TYPE_LABELS, label } from "@/lib/labels";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 // Directory data changes rarely: re-render at most every 10 minutes.
 export const revalidate = 600;
@@ -25,6 +30,10 @@ export default async function Home() {
 
   return (
     <main>
+      <JsonLd data={{
+        "@context": "https://schema.org", "@type": "WebSite", name: "DiveAdvisor", url: siteUrl(),
+        description: "Trova e contatta i diving in Italia, con recensioni verificate.", inLanguage: "it-IT",
+      }} />
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:pb-20 sm:pt-16">
           <h1 className="max-w-2xl text-4xl font-bold leading-tight sm:text-5xl">Trova il diving giusto, raccontato da chi ci è stato</h1>

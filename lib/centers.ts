@@ -127,3 +127,6 @@ export async function listRegionCounts() {
   return [...counts].map(([name, count]) => ({ name, slug: regionSlug(name), count }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "it"));
 }
+
+// Test listings ("[TEST] …") stay out of search engines until real data replaces them.
+export const isTestCenter = (c: Pick<Center, "name">) => c.name.startsWith("[TEST]");

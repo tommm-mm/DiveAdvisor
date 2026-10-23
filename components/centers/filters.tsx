@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { DIVE_TYPE_LABELS, LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import type { FilterOptions } from "@/lib/centers";
 
-type Props = { options: FilterOptions; showRegion?: boolean };
+type Props = { options: FilterOptions; showRegion?: boolean; showType?: boolean };
 
 // Filters only rewrite the URL; the server component re-renders with the new results.
-export function Filters({ options, showRegion = true }: Props) {
+export function Filters({ options, showRegion = true, showType = true }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -36,7 +36,8 @@ export function Filters({ options, showRegion = true }: Props) {
   };
 
   const groups = [
-    { key: "tipo", title: "Tipo di immersione", values: options.diveTypes, map: DIVE_TYPE_LABELS },
+    // Dive type pages (/immersioni/…) fix the type in the path, so the group is hidden there.
+    ...(showType ? [{ key: "tipo", title: "Tipo di immersione", values: options.diveTypes, map: DIVE_TYPE_LABELS }] : []),
     { key: "federazione", title: "Federazione", values: options.federations, map: {} },
     { key: "lingua", title: "Lingue parlate", values: options.languages, map: LANGUAGE_LABELS },
     { key: "servizio", title: "Servizi", values: options.services, map: SERVICE_LABELS },
