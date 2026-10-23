@@ -63,7 +63,7 @@ test.describe("logged in", () => {
     await diver.getByRole("button", { name: "Pubblica recensione" }).click();
     await expect(diver.getByText("Recensione pubblicata")).toBeVisible();
 
-    // 3. The code is now used: reusing it fails.
+    // 3. The dashboard shows the code as used.
     await owner.reload();
     await expect(owner.locator("li", { hasText: code }).getByText("Usato", { exact: true })).toBeVisible();
 
@@ -81,9 +81,17 @@ test.describe("logged in", () => {
     await diver.reload();
     await expect(diver.locator("li", { hasText: text }).getByText(reply)).toBeVisible();
 
-    // 6. A second review for the same centre is not allowed.
-    await diver.goto(`${E2E_CENTER}/recensione`);
-    await expect(diver.getByText("Puoi scrivere una sola recensione per diving.", { exact: false })).toBeVisible();
+    // 6. The same code cannot be used twice, even for a new review.
+    await diver.goto(`${E2E_CENTER}/recensione?codice=${code}`);
+    await expect(diver.getByText("Hai già recensito l'immersione del")).toBeVisible();
+    for (const label of ["Sicurezza", "Attrezzatura", "Briefing", "Dimensione del gruppo", "Ambiente", "Rapporto qualità/prezzo"]) {
+      await diver.getByLabel(`${label}: 4 su 5`).check({ force: true });
+    }
+    await diver.getByLabel("Data dell'immersione").fill(today);
+    await diver.getByLabel("La tua esperienza").fill(`${text} Seconda volta con lo stesso codice.`);
+    await expect(diver.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
+    await diver.getByRole("button", { name: "Pubblica recensione" }).click();
+    await expect(diver.getByText("Codice non valido, già usato o scaduto.", { exact: false })).toBeVisible();
 
     await ownerCtx.close();
     await diverCtx.close();

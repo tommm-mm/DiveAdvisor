@@ -66,7 +66,6 @@ export async function submitReview(_prev: ReviewState, form: FormData): Promise<
   }
 
   const isTest = center.name.startsWith("[TEST]");
-  const duplicate = { status: "error" as const, message: "Hai già scritto una recensione per questo diving.", values };
 
   if (d.code) {
     // Code check, review insert and code redemption happen in one DB transaction.
@@ -81,7 +80,6 @@ export async function submitReview(_prev: ReviewState, form: FormData): Promise<
         fieldErrors: { code: "Codice non valido, già usato o scaduto. Controllalo o lascia il campo vuoto." },
       };
     }
-    if (error?.code === "23505") return duplicate;
     if (error) return { status: "error", message: "Non siamo riusciti a salvare la recensione. Riprova.", values };
 
     revalidatePath(centerPath(center));
@@ -91,13 +89,19 @@ export async function submitReview(_prev: ReviewState, form: FormData): Promise<
   }
 
   // No code: insert as the user (RLS only allows pending, unverified reviews), then moderation.
+  // A DB trigger allows one unverified review per user and centre every 30 days.
   const supabase = await createClient();
   const { data: review, error } = await supabase.from("reviews").insert({
     center_id: center.id, user_id: user.id, dive_date: d.diveDate, text: d.text,
     score_safety: d.safety, score_equipment: d.equipment, score_briefing: d.briefing,
     score_group: d.group, score_environment: d.environment, score_value: d.value,
   }).select("id").single();
-  if (error?.code === "23505") return duplicate;
+  if (error?.message.includes("unverified_too_soon")) {
+    return {
+      status: "error", values,
+      message: "Hai già inviato una recensione senza codice per questo diving negli ultimi 30 giorni. Per una nuova immersione chiedi un codice al diving.",
+    };
+  }
   if (error || !review) return { status: "error", message: "Non siamo riusciti a salvare la recensione. Riprova.", values };
 
   await sendModerationEmail({ centerName: center.name, reviewId: review.id, text: d.text });

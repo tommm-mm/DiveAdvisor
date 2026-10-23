@@ -9,6 +9,7 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Codice di verifica: monouso, scade dopo 30 giorni, non legato a una data. Formato 8 caratteri senza 0/O/1/I, mostrato come `XXXX-XXXX`.
 - Codice errato o scaduto: il form mostra un errore (non salva in silenzio come non verificata). L'utente può correggere o lasciare il campo vuoto.
 - Recensione senza codice: `pending`, pubblicata solo dopo moderazione in Supabase, etichetta "Non verificata".
+- **Più recensioni per lo stesso diving** (richiesta di Tommaso, 23/10): con codice illimitate (una per immersione), senza codice max 1 ogni 30 giorni per utente e centro. Sostituisce il vincolo `UNIQUE (center_id, user_id)` di `PROJECT.md`.
 - L'autore non modifica né cancella la recensione (fuori MVP); per la rimozione si usa la segnalazione.
 - Email di moderazione e di nuova recensione: per ora a `LEAD_EMAIL_OVERRIDE` (email di Tommaso) finché non c'è il dominio.
 - Recensioni anonime in pagina ("Subacqueo"): i profili non sono leggibili pubblicamente e non mostriamo nomi.
@@ -32,7 +33,13 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
    - In locale manca la service role key: il flusso verificato end-to-end gira solo sulla preview Vercel.
    - Aggiornati due test vecchi: testo "Nessuna recensione ancora"; link di rivendicazione testato su Bellagio (Como Deep Prova ora è rivendicata).
    - Pulizia dopo una corsa e2e (il diver può recensire un centro una sola volta):
+     Non più necessaria dopo il passo 8 (si può recensire di nuovo), utile solo per tenere pulite le pagine di prova:
      ```sql
      delete from reviews where user_id = (select id from auth.users where email = 'e2e-diver@diveadvisor.test');
      delete from verification_codes where center_id = (select id from dive_centers where slug = 'test-verbano-tech-prova-verbania');
      ```
+8. **Migrazione `20261023010000_multiple_reviews.sql`** — applicata. Rimosso `reviews_center_id_user_id_key`, aggiunto indice `(center_id, user_id, created_at)`, trigger `private.limit_unverified_reviews` che blocca una seconda recensione non verificata entro 30 giorni (errore `unverified_too_soon`, vale anche per insert diretti via API). Advisor: nessun nuovo avviso. Form: niente più blocco "già recensito", solo un promemoria dell'ultima immersione recensita. Test: il passo finale ora verifica che lo stesso codice non si riusi.
+9. **Bug trovato sulla preview** — dopo l'invio, la pagina si ri-renderizzava e mostrava "già recensito" invece di "Recensione pubblicata". Risolto (il blocco non esiste più; il messaggio di successo resta nel form).
+10. **Test sulla preview protetta** — Vercel richiede login sulle preview: `tests/helpers/global-setup.ts` apre un link di condivisione temporaneo (`VERCEL_SHARE_TOKEN`, generato con il connettore Vercel, scade in 23 ore) e riusa il cookie. Comando:
+    `E2E_BASE_URL=<url preview> VERCEL_SHARE_TOKEN=<token> PW_CHROMIUM_PATH=... npx playwright test`
+    Nota: il connettore Supabase chiede conferma per i `delete`; senza risposta va in timeout.
