@@ -99,7 +99,7 @@ export default async function Home() {
             <h2 id="titolari" className="text-xl font-semibold">Gestisci un diving?</h2>
             <p className="mt-1 text-sm text-muted-foreground">Rivendica la scheda gratis: ricevi contatti e raccogli recensioni verificate.</p>
           </div>
-          <Link href="/diving" className={buttonVariants({ variant: "outline", className: "mt-4 h-11 rounded-xl sm:mt-0" })}>Cerca il tuo diving</Link>
+          <Link href="/per-i-diving" className={buttonVariants({ variant: "outline", className: "mt-4 h-11 rounded-xl sm:mt-0" })}>Scopri come funziona</Link>
         </div>
       </section>
     </main>

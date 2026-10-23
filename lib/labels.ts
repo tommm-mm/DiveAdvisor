@@ -29,3 +29,6 @@ export function slugify(s: string) {
   return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
+
+// Federations offered in forms; keep in sync with ALLOWED.federazioni in scripts/seed.mts.
+export const FEDERATIONS = ["PADI", "SSI", "CMAS", "FIPSAS", "TDI", "SDI", "IANTD", "GUE", "NAUI", "RAID", "UISP", "ANIS"];

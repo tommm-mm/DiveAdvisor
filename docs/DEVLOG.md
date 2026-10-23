@@ -85,3 +85,12 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Schede `[TEST]`: `noindex` ed escluse dalla sitemap; regioni e tipi compaiono in sitemap solo con diving reali.
 - Test: `tests/seo.spec.ts` (titolo, canonical, breadcrumb, 404, sitemap, noindex, immagine). Da fare nella fase UI: controllo velocità (Lighthouse) con foto vere.
 - Proposto a Tommaso: modello Google Sheet con menu a tendina + geocodifica automatica dall'indirizzo (OpenStreetMap) + import a lotti tramite lo script di seed. In attesa di scelta (a) Drive / (b) Excel.
+
+## Sprint 4 — checkpoint 3: pagina "Per i diving" e modifica scheda
+- Raccolta dati: Google Drive non permette al connettore di creare file (permesso negato); inviato a Tommaso il file Excel `diveadvisor-raccolta-diving.xlsx` (guida, menu a tendina, note sulle colonne, valori ammessi) da aprire con Fogli Google.
+- Script di seed: coordinate calcolate dall'indirizzo con OpenStreetMap Nominatim (1 richiesta/s, cache in `data/geocode-cache.json`, ripiego sul centro città con avviso), controllo dei valori ammessi (regione, federazioni, tipi, servizi, lingue), righe vuote ignorate, e **mai sovrascrivere schede rivendicate** (`where owner_id is null` nell'SQL, esclusione in `--write`).
+- Ricerca per nome (`?q=`) nell'elenco e nei filtri (caratteri jolly LIKE neutralizzati).
+- `/per-i-diving`: hero, ricerca della propria scheda, "Come funziona" in 3 passi, "Cosa ottieni", FAQ (con schema.org `FAQPage`), invito per chi non è in elenco (pulsante email solo se `NEXT_PUBLIC_CONTACT_EMAIL` è impostata). Link da header, home, footer e sitemap.
+- Trovato durante la verifica: la pagina prometteva "modifica scheda" ma la dashboard non l'aveva (è nell'MVP, punto 8). Aggiunta `/dashboard/scheda/[id]`: descrizione, contatti, indirizzo, stagione, tipi, federazioni, servizi, lingue; validazione lato server; RLS e grant di colonna limitano al titolare e a questi campi; la scheda pubblica si aggiorna subito.
+- Bug trovato dal test: dopo un errore di validazione il form perdeva tutte le modifiche (React azzera il form dopo l'azione). Ora l'azione restituisce i valori inviati e il form li ripropone.
+- Test: `tests/owner.spec.ts` (modifica + errore + pagina pubblica aggiornata; 404 su scheda altrui), test della pagina "Per i diving" e della ricerca per nome.

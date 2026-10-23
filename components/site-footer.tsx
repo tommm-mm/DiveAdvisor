@@ -22,6 +22,7 @@ export function SiteFooter() {
           <p className="font-semibold">DiveAdvisor</p>
           <ul className="mt-2 space-y-1">
             <li><Link href="/diving" className="text-muted-foreground hover:text-primary">Tutti i diving</Link></li>
+            <li><Link href="/per-i-diving" className="text-muted-foreground hover:text-primary">Per i diving</Link></li>
             <li><Link href="/privacy" className="text-muted-foreground hover:text-primary">Privacy</Link></li>
           </ul>
         </nav>

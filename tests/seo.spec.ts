@@ -32,3 +32,13 @@ test("test centres are not indexed and have a share image", async ({ page, reque
   const res = await request.get(new URL(og!).pathname);
   expect(res.headers()["content-type"]).toContain("image/png");
 });
+
+test("for-centres page explains the offer and finds a centre by name", async ({ page }) => {
+  await page.goto("/per-i-diving");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("contatti diretti");
+  await page.getByLabel("Cerca il tuo diving").fill("Como Deep");
+  await page.getByRole("button", { name: "Trova la scheda" }).click();
+  await expect(page).toHaveURL(/\/diving\?q=Como\+Deep/);
+  await expect(page.getByText("1 diving trovato")).toBeVisible();
+  await expect(page.getByRole("link", { name: "[TEST] Como Deep Prova" })).toBeVisible();
+});

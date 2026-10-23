@@ -8,6 +8,7 @@ export function SiteHeader() {
         <Link href="/" className="font-heading text-xl font-bold">DiveAdvisor</Link>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/diving" className="hover:text-primary">Cerca diving</Link>
+          <Link href="/per-i-diving" className="hidden hover:text-primary sm:inline">Per i diving</Link>
           <AuthLinks />
         </div>
       </nav>

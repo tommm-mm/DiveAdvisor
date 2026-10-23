@@ -29,6 +29,12 @@ export function Filters({ options, showRegion = true, showType = true }: Props) 
     push(next);
   };
 
+  const setName = (value: string) => {
+    const next = new URLSearchParams(params);
+    if (value.trim()) next.set("q", value.trim()); else next.delete("q");
+    if (next.toString() !== params.toString()) push(next);
+  };
+
   const setRegion = (value: string) => {
     const next = new URLSearchParams(params);
     if (value) next.set("regione", value); else next.delete("regione");
@@ -45,6 +51,18 @@ export function Filters({ options, showRegion = true, showType = true }: Props) 
 
   return (
     <div className="space-y-6" aria-busy={pending}>
+      <div className="space-y-2">
+        <Label htmlFor="filter-name">Nome del diving</Label>
+        <input
+          id="filter-name"
+          type="search"
+          defaultValue={params.get("q") ?? ""}
+          placeholder="Cerca per nome"
+          className="h-9 w-full rounded-lg border bg-background px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          onKeyDown={(e) => { if (e.key === "Enter") setName(e.currentTarget.value); }}
+          onBlur={(e) => setName(e.currentTarget.value)}
+        />
+      </div>
       {showRegion && (
         <div className="space-y-2">
           <Label htmlFor="filter-region">Regione</Label>
