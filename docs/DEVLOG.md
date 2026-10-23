@@ -103,3 +103,12 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Nota: l'upload con `upsert` richiederebbe anche permessi di lettura/aggiornamento su storage; non lo usiamo.
 - Test: upload foto + video + pulizia (`tests/owner.spec.ts`, in serie perché modificano lo stesso centro).
 - Deciso con Tommaso: revisione completa UX/UI pagina per pagina più avanti (inizio gennaio, prima del soft launch), con più direzioni e test con 3–5 persone.
+
+## Sprint 4 — checkpoint 4: strumenti per i diving
+- **Migrazione `20261024010000_centre_tools.sql`** — applicata. `center_daily_views` (centro, giorno, conteggio; lettura solo del titolare) + funzione `increment_center_view` (solo service role); `removal_requests` con RLS e nessuna policy (solo service role: l'advisor lo segnala come INFO, è voluto).
+- Visite: `/api/view` chiamata da un beacon nella scheda, una volta per scheda per scheda del browser (sessionStorage, non cookie); esclusi i bot; nessun IP né user agent salvato.
+- Dashboard: statistiche 30 giorni (visite, contatti, da gestire, recensioni pubblicate); sezione "Strumenti per farti trovare" con poster QR stampabile (`/dashboard/poster/[id]`, A4, header e footer nascosti in stampa) e badge recensioni (`/api/badge/[slug]`, SVG con voto, cache 1 ora) con codice da copiare.
+- `/rimuovi-scheda`: richiesta di rimozione (Turnstile, honeypot, salvata in `removal_requests`, email al team con impegno di 7 giorni). Link dalla scheda non rivendicata, dal footer e dalla FAQ.
+- `npm run outreach [url]`: CSV con email "La tua scheda è su DiveAdvisor" per ogni diving non rivendicato con email (esclusi i [TEST]); da inviare a mano dal nostro indirizzo. `outreach*.csv` in `.gitignore`.
+- Bug trovato dai test: arrivando a un modulo con un link interno, il widget Turnstile non compariva (lo script disegna i widget solo al primo caricamento). Nuovo componente `components/turnstile.tsx` con render esplicito, usato da contatto, recensione e rimozione.
+- Test: `tests/tools.spec.ts` (badge, contatore, rimozione via link, strumenti in dashboard, poster altrui 404).

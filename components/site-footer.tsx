@@ -4,7 +4,7 @@ import { DIVE_TYPE_SEO } from "@/lib/site";
 // Footer links double as crawl paths to the SEO landing pages.
 export function SiteFooter() {
   return (
-    <footer className="mt-12 border-t bg-sand">
+    <footer className="mt-12 border-t bg-sand print:hidden">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-3">
         <div>
           <p className="font-heading text-lg font-bold">DiveAdvisor</p>
@@ -23,6 +23,7 @@ export function SiteFooter() {
           <ul className="mt-2 space-y-1">
             <li><Link href="/diving" className="text-muted-foreground hover:text-primary">Tutti i diving</Link></li>
             <li><Link href="/per-i-diving" className="text-muted-foreground hover:text-primary">Per i diving</Link></li>
+            <li><Link href="/rimuovi-scheda" className="text-muted-foreground hover:text-primary">Rimuovi la tua scheda</Link></li>
             <li><Link href="/privacy" className="text-muted-foreground hover:text-primary">Privacy</Link></li>
           </ul>
         </nav>

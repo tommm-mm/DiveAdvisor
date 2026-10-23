@@ -6,6 +6,7 @@ import { CenterBadges } from "@/components/centers/center-badges";
 import { MapPanel } from "@/components/centers/map-panel";
 import { CenterPhoto } from "@/components/centers/center-photo";
 import { VideoList } from "@/components/centers/video-list";
+import { ViewBeacon } from "@/components/centers/view-beacon";
 import { parseVideo, type Video } from "@/lib/videos";
 import { photoUrl } from "@/lib/photos";
 import { centerPath, getCenter, isTestCenter, regionSlug, sortedPhotos, type Center } from "@/lib/centers";
@@ -80,6 +81,7 @@ export default async function CenterPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 pb-24 lg:pb-6">
+      <ViewBeacon centerId={c.id} />
       <JsonLd data={[jsonLd, breadcrumbLd([
         { name: "Diving", path: "/diving" },
         { name: c.region, path: `/diving/${regionSlug(c.region)}` },
@@ -183,6 +185,8 @@ export default async function CenterPage({ params }: Props) {
             <p className="text-xs text-muted-foreground">
               Sei il titolare?{" "}
               <Link href={`/rivendica/${c.slug}`} className="text-primary underline-offset-4 hover:underline">Rivendica questa scheda</Link>
+              {" · "}
+              <Link href={`/rimuovi-scheda?scheda=${c.slug}`} className="underline-offset-4 hover:underline">Chiedi la rimozione</Link>
             </p>
           )}
         </aside>

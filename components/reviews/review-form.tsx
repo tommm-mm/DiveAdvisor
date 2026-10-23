@@ -1,9 +1,9 @@
 "use client";
 
-import Script from "next/script";
 import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Turnstile, type TurnstileHandle } from "@/components/turnstile";
 import { Label } from "@/components/ui/label";
 import { submitReview, type ReviewState } from "@/app/diving/[regione]/[slug]/recensione/actions";
 import { CRITERIA } from "@/lib/review-utils";
@@ -14,11 +14,11 @@ type Props = { centerId: string; centerUrl: string; siteKey: string; initialCode
 
 export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props) {
   const [state, action, pending] = useActionState<ReviewState, FormData>(submitReview, { status: "idle" });
-  const widget = useRef<HTMLDivElement>(null);
+  const widget = useRef<TurnstileHandle>(null);
 
   // A Turnstile token is single-use: get a fresh one after each failed attempt.
   useEffect(() => {
-    if (state.status === "error" && widget.current) window.turnstile?.reset(widget.current);
+    if (state.status === "error") widget.current?.reset();
   }, [state]);
 
   if (state.status === "published" || state.status === "pending") {
@@ -41,7 +41,6 @@ export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props)
 
   return (
     <form action={action} className="space-y-6" noValidate>
-      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />
       <input type="hidden" name="centerId" value={centerId} />
 
       <div className="space-y-4">
@@ -92,7 +91,7 @@ export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props)
           : <p id="r-code-hint" className="text-xs text-muted-foreground">Te lo dà il diving dopo l&apos;immersione. Senza codice la recensione viene controllata prima della pubblicazione.</p>}
       </div>
 
-      <div ref={widget} className="cf-turnstile" data-size="flexible" data-sitekey={siteKey} data-language="it" />
+      <Turnstile ref={widget} siteKey={siteKey} />
       {state.message && <p role="alert" className="text-sm text-destructive">{state.message}</p>}
       <Button type="submit" className="h-11 w-full" disabled={pending}>
         {pending ? "Invio in corso" : "Pubblica recensione"}

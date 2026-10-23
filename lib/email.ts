@@ -80,3 +80,15 @@ export function sendReportEmail(r: { reviewId: string; reason: string }) {
 <p>Controlla le tabelle <code>review_reports</code> e <code>reviews</code> in Supabase.</p>`,
   });
 }
+
+export function sendRemovalEmail(r: { centerName: string; name: string; email: string; role: string; reason: string }) {
+  return sendEmail({
+    to: adminInbox(),
+    replyTo: r.email,
+    subject: `Richiesta di rimozione: ${r.centerName}`,
+    text: `${r.name} (${r.role}, ${r.email}) chiede la rimozione della scheda "${r.centerName}".\n\nMotivo: ${r.reason || "non indicato"}\n\nVerifica che sia il titolare (rispondi a questa email), poi elimina la scheda in Supabase e segna la richiesta come done nella tabella removal_requests. Impegno: entro 7 giorni.`,
+    html: `<p><strong>${esc(r.name)}</strong> (${esc(r.role)}, ${esc(r.email)}) chiede la rimozione della scheda <strong>${esc(r.centerName)}</strong>.</p>
+<p>Motivo: ${esc(r.reason || "non indicato")}</p>
+<p>Verifica che sia il titolare (rispondi a questa email), poi elimina la scheda in Supabase e segna la richiesta come <code>done</code> nella tabella <code>removal_requests</code>. Impegno: entro 7 giorni.</p>`,
+  });
+}

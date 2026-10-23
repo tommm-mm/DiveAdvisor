@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...[...regions].map((r) => ({ url: `${base}/diving/${r}`, changeFrequency: "weekly" as const, priority: 0.8 })),
     ...[...typePages].map((p) => ({ url: `${base}${p}`, changeFrequency: "weekly" as const, priority: 0.7 })),
     ...centers.map((c) => ({ url: `${base}${centerPath(c)}`, lastModified: c.verified_at ?? undefined, changeFrequency: "monthly" as const, priority: 0.6 })),
+    { url: `${base}/rimuovi-scheda`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${base}/privacy`, changeFrequency: "yearly", priority: 0.1 },
   ];
 }

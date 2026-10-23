@@ -1,25 +1,22 @@
 "use client";
 
-import Script from "next/script";
 import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Turnstile, type TurnstileHandle } from "@/components/turnstile";
 import { Label } from "@/components/ui/label";
 import { sendContact, type ContactState } from "@/app/diving/[regione]/[slug]/contact-action";
 
-declare global {
-  interface Window { turnstile?: { reset: (el?: HTMLElement) => void } }
-}
 
 const field = "w-full rounded-lg border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 export function ContactForm({ centerId, siteKey }: { centerId: string; siteKey: string }) {
   const [state, action, pending] = useActionState<ContactState, FormData>(sendContact, { status: "idle" });
-  const widget = useRef<HTMLDivElement>(null);
+  const widget = useRef<TurnstileHandle>(null);
 
   // A Turnstile token is single-use: get a fresh one after each failed attempt.
   useEffect(() => {
-    if (state.status === "error" && widget.current) window.turnstile?.reset(widget.current);
+    if (state.status === "error") widget.current?.reset();
   }, [state]);
 
   if (state.status === "sent") {
@@ -35,7 +32,6 @@ export function ContactForm({ centerId, siteKey }: { centerId: string; siteKey: 
   const v = state.values;
   return (
     <form action={action} className="space-y-3" noValidate>
-      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />
       <input type="hidden" name="centerId" value={centerId} />
       <div className="hidden" aria-hidden>
         <label>Non compilare<input name="website" tabIndex={-1} autoComplete="off" /></label>
@@ -71,7 +67,7 @@ export function ContactForm({ centerId, siteKey }: { centerId: string; siteKey: 
         {err.privacy && <p id="c-privacy-err" className="text-sm text-destructive">{err.privacy}</p>}
       </div>
 
-      <div ref={widget} className="cf-turnstile" data-size="flexible" data-sitekey={siteKey} data-language="it" />
+      <Turnstile ref={widget} siteKey={siteKey} />
       {state.message && <p role="alert" className="text-sm text-destructive">{state.message}</p>}
       <Button type="submit" className="h-10 w-full" disabled={pending}>
         {pending ? "Invio in corso" : "Invia richiesta"}
