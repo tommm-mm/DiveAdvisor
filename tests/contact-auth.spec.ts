@@ -39,6 +39,7 @@ test("login form validates the email", async ({ page }) => {
 });
 
 test("claim link is shown on unclaimed centres", async ({ page }) => {
-  await page.goto(CENTER);
-  await expect(page.getByRole("link", { name: "Rivendica questa scheda" })).toHaveAttribute("href", "/rivendica/test-como-deep-prova-como");
+  // Como Deep Prova is claimed by the test owner account, so use an unclaimed centre.
+  await page.goto("/diving/lombardia/test-bellagio-sub-prova-bellagio");
+  await expect(page.getByRole("link", { name: "Rivendica questa scheda" })).toHaveAttribute("href", "/rivendica/test-bellagio-sub-prova-bellagio");
 });

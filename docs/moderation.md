@@ -1,0 +1,19 @@
+# Moderazione delle recensioni
+
+Non c'è un pannello admin (fuori MVP): si modera dal Table Editor di Supabase.
+
+## Recensioni non verificate
+1. Arriva un'email "Recensione da moderare" (a `ADMIN_EMAIL`, per ora l'email di Tommaso).
+2. Supabase → Table Editor → `reviews` → filtra `status = pending`.
+3. Leggi il testo. Cambia `status` in `published` (va online con l'etichetta "Non verificata") o `rejected` (resta nascosta a tutti, anche al diving).
+4. La scheda si aggiorna entro 10 minuti (cache della pagina).
+
+Criteri per rifiutare: insulti o dati personali, contenuti non legati a un'immersione, spam o pubblicità, conflitto di interessi evidente (es. scritta dal diving o da un concorrente).
+
+## Segnalazioni
+1. Arriva un'email "Recensione segnalata" con l'id.
+2. Table Editor → `review_reports` per il motivo, poi `reviews` per la recensione.
+3. Se va rimossa: `status = rejected`. Il diving non può cancellare recensioni, solo rispondere.
+
+## Recensioni verificate
+Sono pubblicate subito perché il codice dimostra l'immersione. Si possono comunque rifiutare dopo una segnalazione.

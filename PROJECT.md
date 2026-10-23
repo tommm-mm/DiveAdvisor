@@ -92,7 +92,7 @@ reviews
   verified boolean, verification_code_id (nullable),
   score_safety, score_equipment, score_briefing, score_group, score_environment, score_value (1-5),
   text, owner_reply, owner_reply_at, created_at
-  UNIQUE (center_id, user_id)
+  -- più recensioni per utente e centro: illimitate con codice, senza codice max 1 ogni 30 giorni
 
 verification_codes
   id, center_id, code, created_at, used_at, used_by
@@ -134,7 +134,7 @@ claim_requests
 
 **Rivendicazione scheda:** il titolare invia richiesta con prova (email del dominio del diving o conferma telefonica) → voi approvate → accede alla dashboard.
 
-**Anti-recensioni false:** una recensione per utente per centro, Turnstile, moderazione, il diving può rispondere ma non cancellare, segnalazione di contenuti.
+**Anti-recensioni false:** con codice una recensione per immersione (ogni codice vale una volta); senza codice al massimo una ogni 30 giorni per utente e centro, Turnstile, moderazione, il diving può rispondere ma non cancellare, segnalazione di contenuti.
 
 ## 9. Raccolta dati (collo di bottiglia reale)
 
