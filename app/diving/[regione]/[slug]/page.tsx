@@ -9,6 +9,8 @@ import { LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import { ContactForm } from "@/components/centers/contact-form";
 import { TrackedLink } from "@/components/centers/tracked-link";
 import { turnstileSiteKey } from "@/lib/turnstile";
+import { getPublishedReviews, getRating } from "@/lib/reviews";
+import { ReviewsSection } from "@/components/reviews/reviews-section";
 
 type Props = { params: Promise<{ regione: string; slug: string }> };
 
@@ -33,8 +35,9 @@ export default async function CenterPage({ params }: Props) {
   const { regione, slug } = await params;
   const c = await getCenter(regione, slug);
   if (!c) notFound();
+  const [{ reviews, error: reviewsError }, rating] = await Promise.all([getPublishedReviews(c.id), getRating(c.id)]);
 
-  // schema.org LocalBusiness for search engines (AggregateRating comes with reviews in Sprint 3).
+  // schema.org LocalBusiness for search engines, with AggregateRating once there are published reviews.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -51,6 +54,9 @@ export default async function CenterPage({ params }: Props) {
       addressCountry: "IT",
     },
     geo: c.lat !== null && c.lng !== null ? { "@type": "GeoCoordinates", latitude: c.lat, longitude: c.lng } : undefined,
+    aggregateRating: rating?.review_count
+      ? { "@type": "AggregateRating", ratingValue: Number(rating.avg_overall), reviewCount: rating.review_count, bestRating: 5, worstRating: 1 }
+      : undefined,
   };
 
   const contacts = [
@@ -99,13 +105,7 @@ export default async function CenterPage({ params }: Props) {
             </section>
           )}
 
-          <section aria-labelledby="recensioni">
-            <h2 id="recensioni" className="text-lg font-medium">Recensioni</h2>
-            <div className="mt-2 rounded-lg border border-dashed p-6 text-center">
-              <p className="font-medium">Nessuna recensione</p>
-              <p className="mt-1 text-sm text-muted-foreground">Le recensioni arriveranno presto.</p>
-            </div>
-          </section>
+          <ReviewsSection reviews={reviews} rating={rating} error={reviewsError} writeUrl={`${centerPath(c)}/recensione`} />
 
           {c.lat !== null && c.lng !== null && (
             <section aria-labelledby="mappa">
