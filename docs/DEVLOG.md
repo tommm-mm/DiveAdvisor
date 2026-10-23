@@ -54,4 +54,5 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 ## Da ricordare a Tommaso
 - **KPI**: definirli insieme (richiesta del 23/10/2026). Proposta di partenza: contatti inviati per diving al mese, recensioni verificate, diving rivendicati, visitatori unici.
 - **Modello di business**: ne parla col socio; bozza in `PROJECT.md` §11.
-- **Direzione visiva**: Tommaso preferisce A e B; aggiunta la bozza "A+B mix" nel canvas "DiveAdvisor visual directions". Conferma in attesa.
+- **Direzione visiva**: scelta "AB" (mix di A pulito e B outdoor) come base. Nella fase UI/UX Tommaso vuole vedere molte più direzioni da analizzare: semplice, facile da navigare, piacevole.
+- **Marketing**: priorità ai diving (portano traffico e lo ricevono). Tommaso farà gruppi Facebook, blog/newsletter, Instagram/TikTok su diving, siti e sito. SEO prioritaria.
