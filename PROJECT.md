@@ -269,3 +269,19 @@ La bozza interattiva fatta in chat è solo un wireframe per allinearvi. In Claud
 - **Collega gli strumenti:** il connettore Supabase per schema e migrazioni, quello Vercel per deploy e log (entrambi già disponibili nel tuo account).
 - **Test e controlli:** lint, type-check e un test dei flussi critici (contatto, recensione) a ogni sprint.
 - **Dati reali presto:** usa subito pochi diving veri per scoprire problemi di dati e di interfaccia.
+
+## 11. Modello di business e visione (bozza, da discutere col socio)
+
+Priorità: prima trazione, utenti e un sito utile. È un progetto nato per noi due; se lo usano in tanti, si valuta la monetizzazione.
+
+| Opzione | Quando | Note |
+|---|---|---|
+| Scheda freemium per i diving (Pro) | Dopo il primo anno, se va bene | Preferita |
+| Affiliazioni (attrezzatura, viaggi, assicurazioni) | Presto, base da implementare | Poco invasiva |
+| Siti web per i diving | Anno 1 | Side hustle di Tommaso applicato al progetto |
+| Sponsorizzazioni dirette (brand, assicurazioni) | Con traffico; EUDI | Meglio della pubblicità programmatica (che richiede banner cookie) |
+| Gestionale per i diving | Da valutare dopo l'anno 1 | Ambizioso, non è l'obiettivo attuale |
+| Prenotazioni | Fuori MVP | Più responsabilità legali |
+
+Espansione: Mediterraneo ed estero dall'anno successivo, da discutere. Community (logbook, siti) da valutare.
+P.IVA all'arrivo dei primi ricavi (ads, affiliazioni, diving paganti).

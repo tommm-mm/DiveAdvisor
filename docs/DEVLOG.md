@@ -50,3 +50,8 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Audit UI/UX: dopo aver completato altre funzionalità e una bozza solida.
 - P.IVA: da aprire solo all'arrivo dei primi ricavi (sentire un commercialista circa un mese prima). Titolare del trattamento: Tommaso.
 - Lancio: sito online e curato prima di proporlo ai diving; lancio pubblico prima settimana di febbraio 2027, EUDI il 17 febbraio. Dominio acquistato a dicembre.
+
+## Da ricordare a Tommaso
+- **KPI**: definirli insieme (richiesta del 23/10/2026). Proposta di partenza: contatti inviati per diving al mese, recensioni verificate, diving rivendicati, visitatori unici.
+- **Modello di business**: ne parla col socio; bozza in `PROJECT.md` §11.
+- **Direzione visiva**: tre bozze (A pulito, B outdoor, C tech) nel canvas "DiveAdvisor visual directions"; scelta in attesa.
