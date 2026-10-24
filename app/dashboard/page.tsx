@@ -9,6 +9,7 @@ import { createCodeCards, setLeadStatus } from "./actions";
 import { CodesSection, type Code } from "@/components/dashboard/codes-section";
 import { OwnerReviews, type OwnerReview } from "@/components/dashboard/owner-reviews";
 import { CopyButton } from "@/components/copy-button";
+import { InviteSection } from "@/components/dashboard/invite-section";
 
 export const metadata: Metadata = { title: "Area diving", robots: { index: false } };
 
@@ -46,7 +47,7 @@ export default async function DashboardPage() {
   const [{ data: leads, error }, { data: codes, error: codesError }, { data: reviews, error: reviewsError }] = await Promise.all([
     supabase.from("leads").select("id, center_id, name, email, message, channel, status, created_at")
       .in("center_id", ids).order("created_at", { ascending: false }).limit(100),
-    supabase.from("verification_codes").select("id, center_id, code, created_at, expires_at, used_at")
+    supabase.from("verification_codes").select("id, center_id, code, created_at, expires_at, used_at, max_uses, use_count")
       .in("center_id", ids).order("created_at", { ascending: false }).limit(30),
     // RLS ("reviews: owner read own centre") returns published and pending reviews, never rejected ones.
     supabase.from("reviews").select("id, center_id, status, dive_date, verified, text, owner_reply, owner_reply_at, created_at, score_safety, score_equipment, score_briefing, score_group, score_environment, score_value")
@@ -130,6 +131,16 @@ export default async function DashboardPage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section aria-labelledby="invita" className="mt-8">
+        <h2 id="invita" className="text-lg font-medium">Chiedi una recensione</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Dopo l&apos;immersione manda un link nel gruppo WhatsApp della barca: ognuno lascia la sua recensione verificata.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {centers.map((c) => <InviteSection key={c.id} centerId={c.id} centerName={centers.length > 1 ? c.name : undefined} />)}
+        </div>
       </section>
 
       <section aria-labelledby="strumenti" className="mt-8">

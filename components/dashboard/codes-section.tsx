@@ -5,7 +5,7 @@ import { CopyButton } from "@/components/copy-button";
 import { createVerificationCode } from "@/app/dashboard/actions";
 import { formatCode } from "@/lib/review-utils";
 
-export type Code = { id: string; center_id: string; code: string; created_at: string; expires_at: string; used_at: string | null };
+export type Code = { id: string; center_id: string; code: string; created_at: string; expires_at: string; used_at: string | null; max_uses: number; use_count: number };
 type Center = { id: string; name: string; reviewUrl: string };
 
 const fmt = (d: string) => new Date(d).toLocaleDateString("it-IT", { day: "numeric", month: "short", timeZone: "Europe/Rome" });
@@ -54,6 +54,7 @@ export async function CodesSection({ centers, codes, error }: { centers: Center[
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-lg tracking-wider" data-testid="verification-code">{formatCode(c.code)}</span>
                     <Badge variant={s.variant}>{s.label}</Badge>
+                    {c.max_uses > 1 && <span className="text-xs text-muted-foreground">Gruppo · {c.use_count}/{c.max_uses} usati</span>}
                   </div>
                   <span className="text-sm text-muted-foreground">
                     {c.used_at ? `Usato il ${fmt(c.used_at)}` : `Creato il ${fmt(c.created_at)} · scade il ${fmt(c.expires_at)}`}
