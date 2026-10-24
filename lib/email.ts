@@ -106,3 +106,14 @@ export function sendReviewRejectedEmail(r: { to: string; centerName: string; not
     replyTo: adminInbox(),
   });
 }
+
+// "Write first, confirm later": the link that turns a draft into a real review.
+export function sendReviewConfirmEmail(r: { to: string; centerName: string; url: string }) {
+  return sendEmail({
+    to: r.to,
+    subject: `Conferma la tua recensione di ${r.centerName}`,
+    text: `Ciao,\n\nper pubblicare la tua recensione di ${r.centerName} apri questo link entro 48 ore:\n${r.url}\n\nSe non sei stato tu, ignora questa email.\n\nDiveAdvisor`,
+    html: `<p>Ciao,</p><p>per pubblicare la tua recensione di ${esc(r.centerName)} conferma entro 48 ore:</p>
+<p><a href="${esc(r.url)}">Conferma la recensione</a></p><p>Se non sei stato tu, ignora questa email.</p><p>DiveAdvisor</p>`,
+  });
+}

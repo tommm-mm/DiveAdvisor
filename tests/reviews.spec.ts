@@ -11,10 +11,45 @@ test("centre page shows the reviews section and a link to write one", async ({ p
   await expect(section.getByRole("link", { name: "Scrivi una recensione" })).toHaveAttribute("href", `${CENTER}/recensione`);
 });
 
-test("review form sends visitors to login and keeps the code", async ({ page }) => {
+test("visitors can write a review without logging in and must give an email", async ({ page }) => {
   await page.goto(`${CENTER}/recensione?codice=ABCD-EFGH`);
-  await expect(page).toHaveURL(/\/accedi\?next=/);
-  expect(decodeURIComponent(page.url())).toContain(`${CENTER}/recensione?codice=ABCD-EFGH`);
+  await expect(page).toHaveURL(/\/recensione\?codice=ABCD-EFGH$/);
+  await expect(page.getByLabel("Codice di verifica (facoltativo)")).toHaveValue("ABCD-EFGH");
+  await expect(page.getByLabel("La tua email")).toBeVisible();
+  await expect(page.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
+  await page.getByRole("button", { name: "Pubblica recensione" }).click();
+  await expect(page.getByText("Scegli un voto da 1 a 5")).toHaveCount(6);
+});
+
+test("visitor review: wrong code is reported before any email is sent", async ({ page, isMobile }) => {
+  // Draft creation uses the service role: runs against the preview only.
+  test.skip(!process.env.E2E_BASE_URL, "runs on the preview");
+  test.skip(isMobile, "runs once on desktop");
+  await page.goto(`${CENTER}/recensione?codice=ZZZZ-ZZZZ`);
+  for (const label of ["Sicurezza", "Attrezzatura", "Briefing", "Dimensione del gruppo", "Ambiente", "Rapporto qualità/prezzo"]) {
+    await page.getByLabel(`${label}: 4 su 5`).check({ force: true });
+  }
+  await page.getByLabel("Data dell'immersione").fill(new Date().toISOString().slice(0, 10));
+  await page.getByLabel("La tua esperienza").fill("[TEST] Recensione da visitatore senza accesso, per provare il codice errato.");
+  await page.getByLabel("La tua email").fill("e2e-visitor@diveadvisor.test");
+  await page.getByLabel(/Ho fatto davvero questa immersione/).check();
+  await expect(page.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
+  await page.getByRole("button", { name: "Pubblica recensione" }).click();
+  await expect(page.getByText("Codice non valido, già usato o scaduto.", { exact: false })).toBeVisible();
+
+  // Without the code the draft is created and a confirmation email is announced.
+  await page.getByLabel("Codice di verifica (facoltativo)").fill("");
+  await expect(page.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
+  await page.getByRole("button", { name: "Pubblica recensione" }).click();
+  await expect(page.getByText("Controlla la tua email")).toBeVisible();
+});
+
+test("confirmation link with a bad token shows an error", async ({ page, isMobile }) => {
+  test.skip(!process.env.E2E_BASE_URL, "runs on the preview");
+  test.skip(isMobile, "runs once on desktop");
+  await page.goto("/recensione/conferma?token=non-valido");
+  await page.getByRole("button", { name: "Conferma e pubblica" }).click();
+  await expect(page.getByText("Link scaduto o già usato")).toBeVisible();
 });
 
 test.describe("logged in", () => {

@@ -1,20 +1,20 @@
 "use server";
 
 import { headers } from "next/headers";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createHash, randomBytes } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyTurnstile } from "@/lib/turnstile";
-import { sendModerationEmail, sendNewReviewEmail } from "@/lib/email";
-import { centerPath } from "@/lib/centers";
+import { sendReviewConfirmEmail } from "@/lib/email";
 import { CRITERIA, normalizeCode, type CriterionKey } from "@/lib/review-utils";
+import { SAVE_ERRORS, saveReview } from "@/lib/review-save";
 
-type Field = CriterionKey | "diveDate" | "text" | "code" | "rules";
+type Field = CriterionKey | "diveDate" | "text" | "code" | "rules" | "email";
 
 export type ReviewState = {
-  status: "idle" | "published" | "pending" | "error";
+  status: "idle" | "published" | "pending" | "confirm" | "error";
+  email?: string;
   message?: string;
   fieldErrors?: Partial<Record<Field, string>>;
   values?: Partial<Record<Field, string>>;
@@ -38,11 +38,10 @@ const schema = z.object({
 });
 
 export async function submitReview(_prev: ReviewState, form: FormData): Promise<ReviewState> {
-  const fields: Field[] = [...CRITERIA.map((c) => c.key), "diveDate", "text", "code", "rules"];
+  const fields: Field[] = [...CRITERIA.map((c) => c.key), "diveDate", "text", "code", "rules", "email"];
   const values = Object.fromEntries(fields.map((f) => [f, String(form.get(f) ?? "")])) as Record<Field, string>;
 
   const user = await getUser();
-  if (!user) return { status: "error", message: "Accedi per scrivere una recensione.", values };
 
   const parsed = schema.safeParse({ ...values, centerId: form.get("centerId") });
   if (!parsed.success) {
@@ -58,53 +57,34 @@ export async function submitReview(_prev: ReviewState, form: FormData): Promise<
   }
 
   const d = parsed.data;
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? h.get("origin") ?? "";
+
+  if (user) {
+    const result = await saveReview(user.id, d, site);
+    if (result.ok) return { status: result.status };
+    return result.reason === "invalid_code"
+      ? { status: "error", values, fieldErrors: { code: SAVE_ERRORS.invalid_code } }
+      : { status: "error", values, message: SAVE_ERRORS[result.reason] };
+  }
+
+  // Not logged in: keep the review as a draft and email a confirmation link (48 h).
+  const email = z.email("Inserisci un indirizzo email valido").max(200).safeParse(values.email);
+  if (!email.success) return { status: "error", values, fieldErrors: { email: email.error.issues[0].message } };
   const admin = createAdminClient();
-  const { data: center } = await admin
-    .from("dive_centers").select("id, slug, name, region, email, owner_id").eq("id", d.centerId).maybeSingle();
-  if (!center) return { status: "error", message: "Diving non trovato.", values };
-  if (center.owner_id === user.id) {
-    return { status: "error", message: "Non puoi recensire un diving che gestisci.", values };
-  }
-
-  const isTest = center.name.startsWith("[TEST]");
-
   if (d.code) {
-    // Code check, review insert and code redemption happen in one DB transaction.
-    const { error } = await admin.rpc("submit_verified_review", {
-      p_user_id: user.id, p_center_id: center.id, p_code: d.code, p_dive_date: d.diveDate,
-      p_safety: d.safety, p_equipment: d.equipment, p_briefing: d.briefing,
-      p_group: d.group, p_environment: d.environment, p_value: d.value, p_text: d.text,
-    });
-    if (error?.message.includes("invalid_code")) {
-      return {
-        status: "error", values,
-        fieldErrors: { code: "Codice non valido, già usato o scaduto. Controllalo o lascia il campo vuoto." },
-      };
-    }
-    if (error) return { status: "error", message: "Non siamo riusciti a salvare la recensione. Riprova.", values };
-
-    revalidatePath(centerPath(center));
-    const site = process.env.NEXT_PUBLIC_SITE_URL ?? h.get("origin") ?? "";
-    await sendNewReviewEmail({ centerName: center.name, centerEmail: center.email, isTest, url: `${site}/dashboard`, text: d.text });
-    return { status: "published" };
+    // Tell about a wrong code now, not after the email round trip.
+    const { data: valid } = await admin.from("verification_codes").select("id")
+      .eq("code", d.code).eq("center_id", d.centerId).is("used_at", null).gt("expires_at", new Date().toISOString()).maybeSingle();
+    if (!valid) return { status: "error", values, fieldErrors: { code: SAVE_ERRORS.invalid_code } };
   }
+  const { data: center } = await admin.from("dive_centers").select("name").eq("id", d.centerId).maybeSingle();
+  if (!center) return { status: "error", values, message: SAVE_ERRORS.not_found };
 
-  // No code: insert as the user (RLS only allows pending, unverified reviews), then moderation.
-  // A DB trigger allows one unverified review per user and centre every 30 days.
-  const supabase = await createClient();
-  const { data: review, error } = await supabase.from("reviews").insert({
-    center_id: center.id, user_id: user.id, dive_date: d.diveDate, text: d.text,
-    score_safety: d.safety, score_equipment: d.equipment, score_briefing: d.briefing,
-    score_group: d.group, score_environment: d.environment, score_value: d.value,
-  }).select("id").single();
-  if (error?.message.includes("unverified_too_soon")) {
-    return {
-      status: "error", values,
-      message: "Hai già inviato una recensione senza codice per questo diving negli ultimi 30 giorni. Per una nuova immersione chiedi un codice al diving.",
-    };
-  }
-  if (error || !review) return { status: "error", message: "Non siamo riusciti a salvare la recensione. Riprova.", values };
-
-  await sendModerationEmail({ centerName: center.name, reviewId: review.id, text: d.text });
-  return { status: "pending" };
+  const token = randomBytes(32).toString("base64url");
+  const { error } = await admin.from("review_drafts").insert({
+    token_hash: createHash("sha256").update(token).digest("hex"), email: email.data, center_id: d.centerId, payload: d,
+  });
+  if (error) return { status: "error", values, message: SAVE_ERRORS.failed };
+  await sendReviewConfirmEmail({ to: email.data, centerName: center.name, url: `${site}/recensione/conferma?token=${token}` });
+  return { status: "confirm", email: email.data };
 }

@@ -17,6 +17,9 @@ export async function GET(request: NextRequest) {
   const { count: deletedLeads, error: leadsError } = await db
     .from("leads").delete({ count: "exact" }).lt("created_at", cutoff.toISOString());
 
+  // Unconfirmed review drafts expire after 48 hours.
+  await db.from("review_drafts").delete().lt("expires_at", new Date().toISOString());
+
   const { data: rejected, error: rejError } = await db
     .from("reviews").select("id, user_id, moderation_note, dive_centers(name)")
     .eq("status", "rejected").is("rejection_notified_at", null).limit(50);

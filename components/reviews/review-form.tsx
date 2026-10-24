@@ -10,9 +10,9 @@ import { CRITERIA } from "@/lib/review-utils";
 
 const field = "w-full rounded-lg border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
-type Props = { centerId: string; centerUrl: string; siteKey: string; initialCode: string };
+type Props = { centerId: string; centerUrl: string; siteKey: string; initialCode: string; needsEmail: boolean };
 
-export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props) {
+export function ReviewForm({ centerId, centerUrl, siteKey, initialCode, needsEmail }: Props) {
   const [state, action, pending] = useActionState<ReviewState, FormData>(submitReview, { status: "idle" });
   const widget = useRef<TurnstileHandle>(null);
 
@@ -20,6 +20,17 @@ export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props)
   useEffect(() => {
     if (state.status === "error") widget.current?.reset();
   }, [state]);
+
+  if (state.status === "confirm") {
+    return (
+      <div role="status" className="rounded-lg bg-muted p-4">
+        <p className="font-medium">Controlla la tua email</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Ti abbiamo scritto a {state.email}. Apri il link entro 48 ore per pubblicare la recensione.
+        </p>
+      </div>
+    );
+  }
 
   if (state.status === "published" || state.status === "pending") {
     return (
@@ -91,12 +102,24 @@ export function ReviewForm({ centerId, centerUrl, siteKey, initialCode }: Props)
           : <p id="r-code-hint" className="text-xs text-muted-foreground">Te lo dà il diving dopo l&apos;immersione. Senza codice la recensione viene controllata prima della pubblicazione.</p>}
       </div>
 
+      {needsEmail && (
+        <div className="space-y-1.5">
+          <Label htmlFor="r-email">La tua email</Label>
+          <input id="r-email" name="email" type="email" autoComplete="email" defaultValue={v?.email} className={`${field} h-10`}
+            aria-invalid={!!err.email} aria-describedby={err.email ? "r-email-err" : "r-email-hint"} />
+          {err.email
+            ? <p id="r-email-err" className="text-sm text-destructive">{err.email}</p>
+            : <p id="r-email-hint" className="text-xs text-muted-foreground">Ti mandiamo un link per confermare. Non la pubblichiamo.</p>}
+        </div>
+      )}
+
       <div className="space-y-1.5">
         <div className="flex items-start gap-2">
           <input id="r-rules" name="rules" type="checkbox" defaultChecked={v?.rules === "on"} className="mt-0.5 size-4 accent-primary"
             aria-invalid={!!err.rules} aria-describedby={err.rules ? "r-rules-err" : undefined} />
           <label htmlFor="r-rules" className="text-sm">
             Ho fatto davvero questa immersione e la recensione rispetta le <Link href="/termini" className="text-primary underline-offset-4 hover:underline">regole</Link> (niente insulti, dati personali o conflitti di interesse).
+            {needsEmail && <> Accetto i termini d&apos;uso e ho letto l&apos;<Link href="/privacy" className="text-primary underline-offset-4 hover:underline">informativa privacy</Link>. Ho almeno 14 anni.</>}
           </label>
         </div>
         {err.rules && <p id="r-rules-err" className="text-sm text-destructive">{err.rules}</p>}
