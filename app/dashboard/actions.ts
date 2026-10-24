@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -70,4 +71,30 @@ export async function createCodeCards(form: FormData) {
   if (error) return;
   revalidatePath("/dashboard");
   redirect(`/dashboard/card/${parsed.data}?da=${encodeURIComponent(batchStart)}`);
+}
+
+export type InviteResult = { ok: true; url: string; message: string; uses: number } | { ok: false; error: string };
+
+// Review invite to send on WhatsApp: one person (30 days) or a whole dive group with one link (7 days,
+// up to `uses` reviews, one per person). RLS limits creation to the owner.
+export async function createInvite(centerId: string, uses: number): Promise<InviteResult> {
+  const parsed = z.object({ centerId: z.uuid(), uses: z.number().int().min(1).max(20) }).safeParse({ centerId, uses });
+  if (!parsed.success) return { ok: false, error: "Richiesta non valida." };
+  const supabase = await createClient();
+  const { data: center } = await supabase.from("dive_centers").select("name, slug, region").eq("id", centerId).maybeSingle();
+  if (!center) return { ok: false, error: "Diving non trovato." };
+  const days = uses > 1 ? 7 : 30;
+  const code = generateCode();
+  const { error } = await supabase.from("verification_codes").insert({
+    center_id: centerId, code, max_uses: uses, expires_at: new Date(Date.now() + days * 86400_000).toISOString(),
+  });
+  if (error) return { ok: false, error: "Non siamo riusciti a creare l'invito. Riprova." };
+  revalidatePath("/dashboard");
+
+  const h = await headers();
+  const url = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}${centerPath(center)}/recensione?codice=${code.slice(0, 4)}-${code.slice(4)}`;
+  const message = uses > 1
+    ? `Grazie a tutti per l'immersione con ${center.name}! Se vi va, lasciateci una recensione: bastano 2 minuti e ci aiuta tantissimo. Il link vale per ognuno di voi: ${url}`
+    : `Grazie per l'immersione con ${center.name}! Se ti va, lasciaci una recensione: bastano 2 minuti. ${url}`;
+  return { ok: true, url, message, uses };
 }

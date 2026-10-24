@@ -134,4 +134,41 @@ test.describe("logged in", () => {
     await ownerCtx.close();
     await diverCtx.close();
   });
+
+  test("group invite link: verified review, once per person", async ({ browser, baseURL }) => {
+    const shared = process.env.VERCEL_SHARE_TOKEN ? { storageState: "test-results/vercel-share.json" } : {};
+    const ownerCtx = await browser.newContext(shared);
+    await signIn(ownerCtx, E2E_OWNER, baseURL!);
+    const owner = await ownerCtx.newPage();
+    await owner.goto("/dashboard");
+    await owner.getByLabel("Subacquei nel gruppo").selectOption("4");
+    await owner.getByRole("button", { name: "Crea il link per il gruppo" }).click();
+    await expect(owner.getByText("vale per 4 recensioni verificate")).toBeVisible();
+    const wa = await owner.getByRole("link", { name: "Invia su WhatsApp" }).getAttribute("href");
+    const link = decodeURIComponent(wa!.split("text=")[1]).match(/https?:\/\/\S+/)![0];
+
+    const diverCtx = await browser.newContext(shared);
+    await signIn(diverCtx, E2E_DIVER, baseURL!);
+    const diver = await diverCtx.newPage();
+    const fill = async (text: string) => {
+      await diver.goto(new URL(link).pathname + new URL(link).search);
+      for (const label of ["Sicurezza", "Attrezzatura", "Briefing", "Dimensione del gruppo", "Ambiente", "Rapporto qualità/prezzo"]) {
+        await diver.getByLabel(`${label}: 5 su 5`).check({ force: true });
+      }
+      await diver.getByLabel("Data dell'immersione").fill(new Date().toISOString().slice(0, 10));
+      await diver.getByLabel("La tua esperienza").fill(text);
+      await diver.getByLabel(/Ho fatto davvero questa immersione/).check();
+      await expect(diver.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
+      await diver.getByRole("button", { name: "Pubblica recensione" }).click();
+    };
+    await fill(`[TEST] Uscita di gruppo ${Date.now()}: tutto organizzato bene, gruppo piccolo e guida attenta.`);
+    await expect(diver.getByText("Recensione pubblicata")).toBeVisible();
+    await fill(`[TEST] Seconda recensione con lo stesso link di gruppo ${Date.now()}, non deve passare.`);
+    await expect(diver.getByText("Codice non valido, già usato o scaduto.", { exact: false })).toBeVisible();
+
+    await owner.reload();
+    await expect(owner.getByText("Gruppo · 1/4 usati")).toBeVisible();
+    await ownerCtx.close();
+    await diverCtx.close();
+  });
 });
