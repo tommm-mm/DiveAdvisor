@@ -8,7 +8,7 @@ Documento di progetto v2 (21 ottobre 2026). Da tenere nel repository come `PROJE
 
 **Problema (dalle vostre parole):** è difficile trovare e contattare i diving, e ci sono poche informazioni e recensioni affidabili.
 
-**Soluzione:** una piattaforma dove ogni subacqueo può cercare un diving in Italia (si parte dal Nord, laghi inclusi), capire cosa offre, leggere recensioni verificate e contattarlo in un click.
+**Soluzione:** una piattaforma dove ogni subacqueo può cercare un diving in Italia (tutta Italia, laghi inclusi), capire cosa offre, leggere recensioni verificate e contattarlo in un click.
 
 **Posizionamento (cosa ci differenzia):**
 - Copre *tutti* i diving, di ogni federazione (PADI, SSI, TDI, SDI, IANTD...), non solo quelli affiliati a un network.

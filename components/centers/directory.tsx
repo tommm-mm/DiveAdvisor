@@ -19,7 +19,7 @@ type Props = {
 export async function Directory({ title, intro, filters, resetHref, showRegion = true, showType = true, breadcrumbs }: Props) {
   const [centers, options] = await Promise.all([listCenters(filters), getFilterOptions()]);
   const ratings = await getRatings(centers.map((c) => c.id));
-  const activeCount = (filters.q ? 1 : 0) + (showRegion && filters.regione ? 1 : 0) + (showType ? filters.tipo.length : 0) +
+  const activeCount = (filters.q ? 1 : 0) + filters.attivita.length + (showRegion && filters.regione ? 1 : 0) + (showType ? filters.tipo.length : 0) +
     filters.federazione.length + filters.lingua.length + filters.servizio.length;
   const mapCenters = centers.map(({ id, slug, name, region, city, lat, lng }) => ({ id, slug, name, region, city, lat, lng }));
 

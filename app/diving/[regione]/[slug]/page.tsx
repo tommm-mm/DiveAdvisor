@@ -10,7 +10,7 @@ import { ViewBeacon } from "@/components/centers/view-beacon";
 import { parseVideo, type Video } from "@/lib/videos";
 import { photoUrl } from "@/lib/photos";
 import { centerPath, getCenter, isTestCenter, regionSlug, sortedPhotos, type Center } from "@/lib/centers";
-import { LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import { ContactForm } from "@/components/centers/contact-form";
 import { TrackedLink } from "@/components/centers/tracked-link";
 import { turnstileSiteKey } from "@/lib/turnstile";
@@ -110,6 +110,9 @@ export default async function CenterPage({ params }: Props) {
               </ul>
             )}
             <h1 className="text-3xl font-semibold tracking-tight">{c.name}</h1>
+            <p className="text-sm font-medium uppercase tracking-wide text-primary">
+              {c.business_types.map((t) => label(BUSINESS_TYPE_LABELS, t)).join(" · ")}
+            </p>
             <p className="text-muted-foreground">{location(c)}, {c.region}</p>
             <CenterBadges center={c} />
             {c.languages.length > 0 && (

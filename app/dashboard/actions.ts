@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -54,4 +55,19 @@ export async function saveOwnerReply(form: FormData) {
     .eq("id", parsed.data.reviewId);
   revalidatePath("/dashboard");
   revalidatePath(centerPath(center));
+}
+
+// Printable code cards: 8 single-use codes valid for a season (6 months), then the print page.
+// RLS ("codes: owner insert") limits this to the owner; the DB caps expiry at one year.
+export async function createCodeCards(form: FormData) {
+  const parsed = z.uuid().safeParse(form.get("centerId"));
+  if (!parsed.success) return;
+  const supabase = await createClient();
+  const batchStart = new Date(Date.now() - 1000).toISOString();
+  const expires = new Date(Date.now() + 180 * 86400_000).toISOString();
+  const rows = Array.from({ length: 8 }, () => ({ center_id: parsed.data, code: generateCode(), expires_at: expires }));
+  const { error } = await supabase.from("verification_codes").insert(rows);
+  if (error) return;
+  revalidatePath("/dashboard");
+  redirect(`/dashboard/card/${parsed.data}?da=${encodeURIComponent(batchStart)}`);
 }

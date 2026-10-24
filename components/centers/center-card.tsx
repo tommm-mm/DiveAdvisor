@@ -3,6 +3,7 @@ import { CenterBadges } from "@/components/centers/center-badges";
 import { CenterPhoto } from "@/components/centers/center-photo";
 import { centerPath, sortedPhotos, type Center } from "@/lib/centers";
 import type { Rating } from "@/lib/review-utils";
+import { BUSINESS_TYPE_LABELS, label } from "@/lib/labels";
 
 const one = (n: number) => Number(n).toLocaleString("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -26,6 +27,9 @@ export function CenterCard({ center, rating }: { center: Center; rating?: Rating
             <span className="shrink-0 text-xs text-muted-foreground">Nessuna recensione</span>
           )}
         </div>
+        <p className="text-xs font-medium uppercase tracking-wide text-primary">
+          {center.business_types.map((t) => label(BUSINESS_TYPE_LABELS, t)).join(" · ")}
+        </p>
         <p className="text-sm text-muted-foreground">
           {[center.city, center.province && `(${center.province})`].filter(Boolean).join(" ")}, {center.region}
         </p>

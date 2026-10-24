@@ -28,7 +28,7 @@ export async function CodesSection({ centers, codes, error }: { centers: Center[
     <section aria-labelledby="codici" className="mt-8">
       <h2 id="codici" className="text-lg font-medium">Codici di verifica</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Dai un codice a ogni subacqueo dopo l&apos;immersione: la sua recensione sarà verificata e pubblicata subito. Ogni codice vale una volta e scade dopo 30 giorni.
+        Per un singolo cliente: genera un codice e mandaglielo (link o QR). Ogni codice vale una volta e scade dopo 30 giorni. Per le card stampate vedi Strumenti.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {centers.map((c) => (

@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { centerPath } from "@/lib/centers";
 import { Badge } from "@/components/ui/badge";
-import { setLeadStatus } from "./actions";
+import { createCodeCards, setLeadStatus } from "./actions";
 import { CodesSection, type Code } from "@/components/dashboard/codes-section";
 import { OwnerReviews, type OwnerReview } from "@/components/dashboard/owner-reviews";
 import { CopyButton } from "@/components/copy-button";
@@ -141,8 +141,17 @@ export default async function DashboardPage() {
               <div key={c.id} className="space-y-4 rounded-2xl border p-4">
                 {centers.length > 1 && <p className="font-medium">{c.name}</p>}
                 <div>
+                  <p className="text-sm font-medium">Card per recensioni verificate</p>
+                  <p className="text-sm text-muted-foreground">Un foglio A4 con 8 card da ritagliare, ognuna con il suo QR. Dai una card a ogni subacqueo dopo l&apos;immersione: la recensione è verificata in automatico. Valgono 6 mesi.</p>
+                  <form action={createCodeCards} className="mt-1 flex flex-wrap items-center gap-x-4">
+                    <input type="hidden" name="centerId" value={c.id} />
+                    <button type="submit" className="text-sm font-medium text-primary underline-offset-4 hover:underline">Genera e stampa 8 card</button>
+                    <Link href={`/dashboard/card/${c.id}`} className="text-sm text-muted-foreground underline-offset-4 hover:underline">Ristampa le card non usate</Link>
+                  </form>
+                </div>
+                <div>
                   <p className="text-sm font-medium">Poster con QR</p>
-                  <p className="text-sm text-muted-foreground">Da stampare per il bancone o la barca: i clienti inquadrano e recensiscono.</p>
+                  <p className="text-sm text-muted-foreground">Da mettere al bancone o in barca: invita i clienti a chiedere la card.</p>
                   <Link href={`/dashboard/poster/${c.id}`} className="text-sm text-primary underline-offset-4 hover:underline">Apri il poster</Link>
                 </div>
                 <div>

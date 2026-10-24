@@ -1,6 +1,7 @@
 // "Your centre is listed" emails for unclaimed centres, to send by hand from our own address.
 // Usage: node --env-file=.env.local --experimental-strip-types scripts/outreach.mts [https://site-url] > outreach.csv
 // Output is CSV (email, subject, body) for a mail merge or copy-paste. Never commit the output.
+// The email is also the GDPR art. 14 notice (data not collected from the person): send it within a month of listing.
 import { createClient } from "@supabase/supabase-js";
 
 const site = (process.argv[2] ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://dive-advisor.vercel.app").replace(/\/$/, "");
@@ -19,7 +20,7 @@ for (const c of data.filter((c) => !c.name.startsWith("[TEST]"))) {
 
 sono Tommaso di DiveAdvisor, la nuova piattaforma per trovare e contattare i diving in Italia, con recensioni verificate.
 
-${c.name} è già in elenco con i dati pubblici che abbiamo trovato: ${page}
+${c.name} è già in elenco con i dati pubblici della vostra attività (nome, indirizzo, contatti e servizi presi dal vostro sito e da elenchi pubblici): ${page}
 
 Potete rivendicare la scheda gratuitamente (il primo anno non costa nulla) per:
 - aggiornare dati, servizi e foto;
@@ -28,6 +29,8 @@ Potete rivendicare la scheda gratuitamente (il primo anno non costa nulla) per:
 
 Per rivendicarla basta aprire la scheda e scegliere "Rivendica questa scheda".
 Se invece preferite non comparire, potete chiedere la rimozione qui: ${site}/rimuovi-scheda?scheda=${c.slug}
+
+Trattiamo questi dati come attività commerciale per offrire ai subacquei un elenco completo (legittimo interesse); potete opporvi in qualsiasi momento. Tutti i dettagli nell'informativa privacy: ${site}/privacy
 
 Se avete domande rispondete pure a questa email.
 

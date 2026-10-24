@@ -11,6 +11,7 @@ const REGIONS = ["Abruzzo", "Basilicata", "Calabria", "Campania", "Emilia-Romagn
   "Lombardia", "Marche", "Molise", "Piemonte", "Puglia", "Sardegna", "Sicilia", "Toscana", "Trentino-Alto Adige", "Umbria",
   "Valle d'Aosta", "Veneto"];
 const ALLOWED: Record<string, string[]> = {
+  tipo_attivita: ["diving", "scuola", "negozio"],
   federazioni: ["padi", "ssi", "cmas", "fipsas", "tdi", "sdi", "iantd", "gue", "naui", "raid", "uisp", "anis", "padi tecrec"],
   tipi_immersione: ["lago", "mare", "tecnico", "corsi"],
   servizi: ["noleggio", "corsi", "ricarica", "barca", "nitrox", "trimix"],
@@ -94,6 +95,8 @@ for (const [i, cols] of lines.entries()) {
     slug, name: r.nome, description: r.descrizione || null, region: r.regione, province: r.provincia || null, city: r.citta,
     address: r.indirizzo || null, lat, lng, phone: r.telefono || null, whatsapp: r.whatsapp || null,
     email: r.email || null, website: r.sito || null, instagram: r.instagram || null,
+    // Missing column or empty cell: a dive centre.
+    business_types: list("tipo_attivita").length ? list("tipo_attivita") : ["diving"],
     federations: list("federazioni").map((v) => v.toUpperCase()), dive_types: list("tipi_immersione"),
     services: list("servizi"), languages: list("lingue"), verified_at: r.data_verifica || null,
     source: "manual" as const,

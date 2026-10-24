@@ -126,3 +126,11 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Nota: finché Resend usa il mittente di prova (senza dominio), le email arrivano solo all'indirizzo del proprietario dell'account Resend; con il dominio (dicembre) arriveranno a tutti.
 - `docs/moderation.md` aggiornato: scrivere il motivo in `moderation_note` quando si rifiuta.
 - Test: `tests/cron.spec.ts` (401 senza segreto; esecuzione con segreto sulla preview).
+
+## Tipi di attività, card per recensioni verificate, tutta Italia (24/10/2026)
+- Decisioni: copertura di **tutta Italia** da subito (PROJECT.md aggiornato); un'attività può essere diving, scuola e/o negozio insieme; kit "recensione verificata" da regalare ai diving (poster + card).
+- Note legali (risposta a Tommaso): inserire attività con dati pubblici è lecito con legittimo interesse, solo dati dell'attività, informativa entro un mese (art. 14 GDPR, l'email "sei su DiveAdvisor" ora contiene fonte dei dati e link alla privacy), opposizione facile, raccolta a mano da più fonti senza copiare in blocco database altrui, testi/foto/loghi mai copiati. Recensioni **mai importate** da altri siti (diritto d'autore, termini delle piattaforme, Codice del Consumo): solo raccolte con codici o da immersioni reali. Rating Google solo per uso interno, mai pubblicato.
+- **Migrazione `20261024030000_business_types_and_code_cards.sql`** — applicata. `dive_centers.business_types` (diving/scuola/negozio, 1–3 valori, indice GIN, modificabile dal titolare); vincolo sui codici: scadenza massima 1 anno. Advisor: nessun nuovo avviso.
+- Sito: filtro "Tipo di attività", tipo mostrato su card e scheda, scelta nel modulo di modifica (almeno uno), colonna `tipo_attivita` nel seed (vuoto = diving).
+- Card stampabili (`/dashboard/card/[id]`): "Genera e stampa 8 card" crea 8 codici validi 6 mesi e un A4 con 8 card ritagliabili, ognuna con il suo QR (codice già dentro: recensione verificata senza digitare). "Ristampa le card non usate". Poster aggiornato ("Chiedi la tua card allo staff"). Testi di FAQ, "Come verifichiamo" e sezione codici aggiornati (card 6 mesi, codici via link 30 giorni).
+- Foglio raccolta dati rigenerato: colonna tipo attività, regole sui dati, colonne Google in grigio "solo uso interno", obiettivi per tutta Italia.

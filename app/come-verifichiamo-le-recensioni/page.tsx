@@ -15,7 +15,7 @@ export default function HowWeVerifyPage() {
       <LegalDraftNotice updated="24 ottobre 2026" />
 
       <h2 className="mt-8 text-xl font-semibold">Recensioni verificate</h2>
-      <p>Dopo l&apos;immersione il diving dà al subacqueo un codice personale (o un QR). Il codice vale una sola volta e scade dopo 30 giorni. Chi recensisce con il codice dimostra di aver fatto un&apos;immersione con quel diving: la recensione viene pubblicata subito con l&apos;etichetta &quot;Verificata&quot;.</p>
+      <p>Dopo l&apos;immersione il diving dà al subacqueo un codice personale: una card stampata con QR (valida 6 mesi) oppure un codice inviato via link (valido 30 giorni). Ogni codice vale una sola volta. Chi recensisce con il codice dimostra di aver fatto un&apos;immersione con quel diving: la recensione viene pubblicata subito con l&apos;etichetta &quot;Verificata&quot;.</p>
 
       <h2 className="mt-8 text-xl font-semibold">Recensioni non verificate</h2>
       <p>Si può recensire anche senza codice. In questo caso la recensione viene controllata da noi prima della pubblicazione e mostra l&apos;etichetta &quot;Non verificata&quot;. Per limitare gli abusi, senza codice si può scrivere al massimo una recensione ogni 30 giorni per lo stesso diving.</p>

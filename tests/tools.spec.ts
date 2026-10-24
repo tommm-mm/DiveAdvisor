@@ -41,6 +41,15 @@ test.describe("owner tools", () => {
     await expect(page.getByRole("img", { name: /QR code per recensire/ })).toBeVisible();
   });
 
+  test("owner prints a sheet of 8 verified-review cards", async ({ page, context, baseURL }) => {
+    await signIn(context, E2E_OWNER, baseURL!);
+    await page.goto("/dashboard");
+    await page.getByRole("button", { name: "Genera e stampa 8 card" }).click();
+    await expect(page.getByRole("heading", { name: "Card recensione verificata" })).toBeVisible();
+    await expect(page.getByTestId("card-code")).toHaveCount(8);
+    await expect(page.getByText(/Valida fino al/).first()).toBeVisible();
+  });
+
   test("poster of another centre is not reachable", async ({ page, context, baseURL }) => {
     await signIn(context, E2E_OWNER, baseURL!);
     await page.goto(CENTER);
