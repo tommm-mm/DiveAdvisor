@@ -42,3 +42,12 @@ test("map renders markers on desktop", async ({ page, isMobile }) => {
   await page.goto("/diving/liguria");
   await expect(page.locator(".leaflet-interactive").first()).toBeVisible();
 });
+
+test("activity type is shown and filterable", async ({ page }) => {
+  await page.goto("/diving?attivita=diving");
+  await expect(page.getByText(/diving trovat/)).toBeVisible();
+  await expect(page.getByRole("article").first().getByText("Diving", { exact: true })).toBeVisible();
+  await page.goto("/diving?attivita=negozio");
+  // No test shop exists: the empty state must appear.
+  await expect(page.getByText("Nessun diving corrisponde ai filtri")).toBeVisible();
+});

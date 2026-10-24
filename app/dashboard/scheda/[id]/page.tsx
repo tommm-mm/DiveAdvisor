@@ -15,7 +15,7 @@ export default async function EditCenterPage({ params }: { params: Promise<{ id:
   const supabase = await createClient();
   const { data: c } = await supabase
     .from("dive_centers")
-    .select("id, slug, name, region, owner_id, description, address, phone, whatsapp, email, website, instagram, season, federations, dive_types, services, languages, video_urls, center_photos(id, path, position)")
+    .select("id, slug, name, region, owner_id, description, address, phone, whatsapp, email, website, instagram, season, business_types, federations, dive_types, services, languages, video_urls, center_photos(id, path, position)")
     .eq("id", id).maybeSingle();
   if (!c || c.owner_id !== user.id) notFound();
 

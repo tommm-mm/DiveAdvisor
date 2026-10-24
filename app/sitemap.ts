@@ -6,7 +6,7 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const centers = (await listCenters({ tipo: [], federazione: [], lingua: [], servizio: [] })).filter((c) => !isTestCenter(c));
+  const centers = (await listCenters({ attivita: [], tipo: [], federazione: [], lingua: [], servizio: [] })).filter((c) => !isTestCenter(c));
 
   const regions = new Set(centers.map((c) => regionSlug(c.region)));
   // Only dive type pages that actually list something (empty pages hurt SEO).

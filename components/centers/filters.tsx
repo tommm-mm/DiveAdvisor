@@ -5,7 +5,7 @@ import { useTransition } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { DIVE_TYPE_LABELS, LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
 import type { FilterOptions } from "@/lib/centers";
 
 type Props = { options: FilterOptions; showRegion?: boolean; showType?: boolean };
@@ -42,6 +42,7 @@ export function Filters({ options, showRegion = true, showType = true }: Props) 
   };
 
   const groups = [
+    { key: "attivita", title: "Tipo di attività", values: options.businessTypes, map: BUSINESS_TYPE_LABELS },
     // Dive type pages (/immersioni/…) fix the type in the path, so the group is hidden there.
     ...(showType ? [{ key: "tipo", title: "Tipo di immersione", values: options.diveTypes, map: DIVE_TYPE_LABELS }] : []),
     { key: "federazione", title: "Federazione", values: options.federations, map: {} },

@@ -25,12 +25,14 @@ export type Center = {
   status: string;
   verified_at: string | null;
   video_urls: string[];
+  business_types: string[];
   center_photos: { path: string; position: number; alt: string | null }[];
 };
 
 export type CenterFilters = {
   regione?: string; // region slug
   q?: string; // free text on the centre name
+  attivita: string[]; // business types
   tipo: string[];
   federazione: string[];
   lingua: string[];
@@ -39,6 +41,7 @@ export type CenterFilters = {
 
 export type FilterOptions = {
   regions: { name: string; slug: string }[];
+  businessTypes: string[];
   diveTypes: string[];
   federations: string[];
   languages: string[];
@@ -46,7 +49,7 @@ export type FilterOptions = {
 };
 
 const LIST_COLUMNS =
-  "id, slug, name, description, region, province, city, address, lat, lng, phone, whatsapp, email, website, instagram, federations, dive_types, services, languages, season, status, verified_at, video_urls, center_photos(path, position, alt)";
+  "id, slug, name, description, region, province, city, address, lat, lng, phone, whatsapp, email, website, instagram, federations, dive_types, services, languages, season, status, verified_at, video_urls, business_types, center_photos(path, position, alt)";
 
 export const regionSlug = (region: string) => slugify(region);
 export const centerPath = (c: Pick<Center, "region" | "slug">) => `/diving/${regionSlug(c.region)}/${c.slug}`;
@@ -59,6 +62,7 @@ export function parseFilters(params: Record<string, string | string[] | undefine
   return {
     regione,
     q,
+    attivita: arr(params.attivita),
     tipo: arr(params.tipo),
     federazione: arr(params.federazione),
     lingua: arr(params.lingua),
@@ -88,6 +92,7 @@ export async function listCenters(filters: CenterFilters): Promise<Center[]> {
   }
   // Escape LIKE wildcards so user input is matched literally.
   if (filters.q) query = query.ilike("name", `%${filters.q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`);
+  if (filters.attivita.length) query = query.overlaps("business_types", filters.attivita);
   if (filters.tipo.length) query = query.overlaps("dive_types", filters.tipo);
   if (filters.federazione.length) query = query.overlaps("federations", filters.federazione);
   if (filters.lingua.length) query = query.overlaps("languages", filters.lingua);
@@ -101,15 +106,16 @@ export async function listCenters(filters: CenterFilters): Promise<Center[]> {
 export async function getFilterOptions(): Promise<FilterOptions> {
   const { data, error } = await createPublicClient()
     .from("dive_centers")
-    .select("region, dive_types, federations, languages, services");
+    .select("region, business_types, dive_types, federations, languages, services");
   if (error) throw error;
-  const uniq = (key: "dive_types" | "federations" | "languages" | "services") =>
+  const uniq = (key: "business_types" | "dive_types" | "federations" | "languages" | "services") =>
     [...new Set(data.flatMap((r) => r[key] as string[]))].sort();
   const regions = [...new Set(data.map((r) => r.region as string))]
     .sort((a, b) => a.localeCompare(b, "it"))
     .map((name) => ({ name, slug: regionSlug(name) }));
   return {
     regions,
+    businessTypes: uniq("business_types"),
     diveTypes: uniq("dive_types"),
     federations: uniq("federations"),
     languages: uniq("languages"),

@@ -4,12 +4,12 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { updateCenter, type EditState } from "@/app/dashboard/scheda/[id]/actions";
-import { DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
 
 type Center = {
   id: string; description: string | null; address: string | null; phone: string | null; whatsapp: string | null;
   email: string | null; website: string | null; instagram: string | null; season: string | null;
-  federations: string[]; dive_types: string[]; services: string[]; languages: string[]; video_urls: string[];
+  business_types: string[]; federations: string[]; dive_types: string[]; services: string[]; languages: string[]; video_urls: string[];
 };
 
 const field = "w-full rounded-lg border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
@@ -31,7 +31,7 @@ export function EditCenterForm({ center }: { center: Center }) {
   const text = (k: keyof Center) => (state.values?.[k] as string | undefined) ?? (center[k] as string | null) ?? "";
   const list = (k: keyof Center) => (state.values?.[k] as string[] | undefined) ?? (center[k] as string[]);
 
-  const group = (name: keyof Pick<Center, "federations" | "dive_types" | "services" | "languages">, title: string, options: [string, string][]) => (
+  const group = (name: keyof Pick<Center, "business_types" | "federations" | "dive_types" | "services" | "languages">, title: string, options: [string, string][]) => (
     <fieldset className="space-y-2">
       <legend className="text-sm font-medium">{title}</legend>
       <div className="flex flex-wrap gap-2">
@@ -65,6 +65,8 @@ export function EditCenterForm({ center }: { center: Center }) {
           </div>
         ))}
       </div>
+      {group("business_types", "Tipo di attività", Object.entries(BUSINESS_TYPE_LABELS))}
+      {err.business_types && <p className="-mt-4 text-sm text-destructive">{err.business_types}</p>}
       {group("dive_types", "Tipi di immersione", Object.entries(DIVE_TYPE_LABELS))}
       {group("federations", "Federazioni", FEDERATIONS.map((f) => [f, f]))}
       {group("services", "Servizi", Object.entries(SERVICE_LABELS))}

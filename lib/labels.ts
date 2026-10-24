@@ -1,4 +1,10 @@
 // Italian display labels for the coded values stored in dive_centers arrays.
+export const BUSINESS_TYPE_LABELS: Record<string, string> = {
+  diving: "Diving",
+  scuola: "Scuola sub",
+  negozio: "Negozio",
+};
+
 export const DIVE_TYPE_LABELS: Record<string, string> = {
   lago: "Lago",
   mare: "Mare",

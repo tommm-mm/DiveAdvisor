@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { centerPath } from "@/lib/centers";
-import { DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
 import { parseVideo } from "@/lib/videos";
 
 export type EditState = {
@@ -26,6 +26,7 @@ const schema = z.object({
   website: z.union([z.literal(""), z.url({ protocol: /^https?$/, error: "Inserisci un indirizzo che inizia con https://" })]).transform((v) => v || null),
   instagram: optional(100),
   season: optional(100),
+  business_types: oneOf(Object.keys(BUSINESS_TYPE_LABELS)).refine((v) => v.length > 0, "Scegli almeno un tipo di attività"),
   federations: oneOf(FEDERATIONS),
   dive_types: oneOf(Object.keys(DIVE_TYPE_LABELS)),
   services: oneOf(Object.keys(SERVICE_LABELS)),
@@ -43,7 +44,7 @@ export async function updateCenter(_prev: EditState, form: FormData): Promise<Ed
   const values = {
     description: text("description"), address: text("address"), phone: text("phone"), whatsapp: text("whatsapp"),
     email: text("email").trim(), website: text("website").trim(), instagram: text("instagram"), season: text("season"),
-    federations: lists("federations"), dive_types: lists("dive_types"), services: lists("services"), languages: lists("languages"),
+    business_types: lists("business_types"), federations: lists("federations"), dive_types: lists("dive_types"), services: lists("services"), languages: lists("languages"),
     video_urls: lists("video_urls"),
   };
   const parsed = schema.safeParse({ id: form.get("id"), ...values });

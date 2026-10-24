@@ -33,12 +33,12 @@ export default async function PosterPage({ params }: { params: Promise<{ id: str
         <div>
           <p className="font-heading text-2xl font-bold text-primary">DiveAdvisor</p>
           <h1 className="mt-6 text-4xl font-bold leading-tight">Com&apos;è andata l&apos;immersione?</h1>
-          <p className="mt-3 text-lg text-muted-foreground">Lascia una recensione a {c.name}</p>
+          <p className="mt-3 text-lg text-muted-foreground">Lascia una recensione verificata a {c.name}</p>
         </div>
         <div className="w-60 max-w-full" role="img" aria-label={`QR code per recensire ${c.name}`} dangerouslySetInnerHTML={{ __html: qr }} />
         <div className="space-y-2">
-          <p className="text-lg font-semibold">1. Inquadra il QR  ·  2. Chiedi il codice allo staff</p>
-          <p className="text-sm text-muted-foreground">Con il codice la tua recensione è verificata e pubblicata subito.</p>
+          <p className="text-lg font-semibold">Chiedi la tua card allo staff</p>
+          <p className="text-sm text-muted-foreground">Inquadra il QR sulla card: la tua recensione è verificata e pubblicata subito. Senza card puoi usare il QR qui sopra.</p>
         </div>
       </section>
     </main>

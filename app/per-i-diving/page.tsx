@@ -16,7 +16,7 @@ const STEPS = [
 
 const FEATURES = [
   { title: "Contatti diretti, senza commissioni", text: "Email dal modulo della scheda e click su WhatsApp e telefono, tutti nella tua area riservata." },
-  { title: "Recensioni verificate", text: "Generi un codice o un QR per ogni cliente: la recensione è legata a un'immersione reale e viene pubblicata subito." },
+  { title: "Recensioni verificate", text: "Dai una card con QR a ogni cliente: la recensione è legata a un'immersione reale e viene pubblicata subito." },
   { title: "Rispondi pubblicamente", text: "Puoi rispondere a ogni recensione. Nessuno può cancellarle, nemmeno noi su richiesta del diving: è ciò che le rende credibili." },
   { title: "Scheda sempre aggiornata", text: "Servizi, federazioni, lingue, contatti. Le modifiche sono online subito." },
 ];
@@ -25,7 +25,7 @@ const FAQ = [
   { q: "Quanto costa?", a: "Il primo anno è gratuito, senza carta di credito e senza impegno. Prima della fine ti diremo in anticipo cosa cambia, e potrai decidere liberamente." },
   { q: "Il mio diving è già in elenco senza che l'abbia chiesto. Perché?", a: "Pubblichiamo solo dati pubblici e verificati dei diving italiani, per dare ai subacquei un elenco completo. Puoi rivendicare la scheda per gestirla, oppure chiederne la rimozione dalla pagina \"Rimuovi la tua scheda\" in fondo al sito." },
   { q: "Posso cancellare una recensione negativa?", a: "No. Puoi rispondere pubblicamente. Se una recensione viola le regole (insulti, dati personali, contenuti falsi) puoi segnalarla e la controlliamo." },
-  { q: "Come funzionano i codici di verifica?", a: "Dalla tua area generi un codice di 8 caratteri o un QR e lo dai al cliente dopo l'immersione. Ogni codice vale una volta e scade dopo 30 giorni." },
+  { q: "Come funzionano i codici di verifica?", a: "Dalla tua area stampi un foglio di card con QR da dare ai clienti dopo l'immersione (valgono 6 mesi), oppure invii un codice via link (vale 30 giorni). Ogni codice vale una volta." },
   { q: "Lavoriamo con tutte le federazioni?", a: "Sì. DiveAdvisor è indipendente: PADI, SSI, CMAS, TDI, SDI, IANTD e tutte le altre, ricreativo e tecnico, mare e lago." },
 ];
 
@@ -40,7 +40,7 @@ export default function ForCentersPage() {
 
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:pb-20 sm:pt-16">
-          <p className="text-sm font-semibold opacity-90">Per diving e scuole sub</p>
+          <p className="text-sm font-semibold opacity-90">Per diving, scuole sub e negozi</p>
           <h1 className="mt-2 max-w-2xl text-4xl font-bold leading-tight sm:text-5xl">Più subacquei, contatti diretti, recensioni vere</h1>
           <p className="mt-4 max-w-xl text-base opacity-90 sm:text-lg">Gestisci gratis la scheda del tuo diving su DiveAdvisor. Il primo anno non costa nulla.</p>
         </div>
