@@ -30,7 +30,6 @@ const FAQ = [
 ];
 
 export default function ForCentersPage() {
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
   return (
     <main>
       <JsonLd data={{
@@ -108,11 +107,9 @@ export default function ForCentersPage() {
         <div className="rounded-2xl bg-primary p-8 text-primary-foreground sm:flex sm:items-center sm:justify-between sm:gap-6">
           <div>
             <h2 className="text-2xl font-semibold">Il tuo diving non è in elenco?</h2>
-            <p className="mt-1 opacity-90">Scrivici e lo aggiungiamo noi, gratis.</p>
+            <p className="mt-1 opacity-90">Aggiungilo in un minuto, gratis. Verifichiamo noi i dati.</p>
           </div>
-          {contactEmail && (
-            <a href={`mailto:${contactEmail}?subject=Aggiungere il mio diving`} className={buttonVariants({ variant: "secondary", className: "mt-4 h-11 rounded-xl px-6 sm:mt-0" })}>Scrivici</a>
-          )}
+          <a href="/eudi#aggiungi" className={buttonVariants({ variant: "secondary", className: "mt-4 h-11 rounded-xl px-6 sm:mt-0" })}>Aggiungi la tua attività</a>
         </div>
       </section>
     </main>

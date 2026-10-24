@@ -167,7 +167,7 @@ test.describe("logged in", () => {
     await expect(diver.getByText("Codice non valido, già usato o scaduto.", { exact: false })).toBeVisible();
 
     await owner.reload();
-    await expect(owner.getByText("Gruppo · 1/4 usati")).toBeVisible();
+    await expect(owner.getByText("Gruppo · 1/4 usati").first()).toBeVisible();
     await ownerCtx.close();
     await diverCtx.close();
   });

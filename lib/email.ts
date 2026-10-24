@@ -117,3 +117,14 @@ export function sendReviewConfirmEmail(r: { to: string; centerName: string; url:
 <p><a href="${esc(r.url)}">Conferma la recensione</a></p><p>Se non sei stato tu, ignora questa email.</p><p>DiveAdvisor</p>`,
   });
 }
+
+export function sendSuggestionEmail(s: { name: string; city: string; email: string; phone: string | null; website: string | null; types: string[] }) {
+  const lines = [`Attività: ${s.name} (${s.types.join(", ")})`, `Città: ${s.city}`, `Email: ${s.email}`, `Telefono: ${s.phone ?? "-"}`, `Sito: ${s.website ?? "-"}`];
+  return sendEmail({
+    to: adminInbox(),
+    replyTo: s.email,
+    subject: `Nuova attività da aggiungere: ${s.name}`,
+    text: `${lines.join("\n")}\n\nVerifica i dati, aggiungila al foglio di raccolta e importala. Poi segna la richiesta come imported nella tabella business_suggestions.`,
+    html: `<p>${lines.map(esc).join("<br>")}</p><p>Verifica i dati, aggiungila al foglio di raccolta e importala. Poi segna la richiesta come <code>imported</code> nella tabella <code>business_suggestions</code>.</p>`,
+  });
+}

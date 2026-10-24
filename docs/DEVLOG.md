@@ -148,3 +148,10 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - **Migrazione `20261025010000_group_codes.sql`** — applicata. `verification_codes.max_uses` (1–30) e `use_count`; `used_at` = "nessun uso rimasto"; tolto il vincolo "un codice = una recensione", aggiunto indice unico (codice, utente) = una recensione a testa; `submit_verified_review` aggiornata (blocca la riga, controlla usi e persona). Advisor: nessun nuovo avviso.
 - Dashboard → "Chiedi una recensione": scegli quante persone (1–20) → "Crea il link per il gruppo" (7 giorni) o "Crea l'invito" (1 persona, 30 giorni) → "Invia su WhatsApp" (messaggio pronto, apre WhatsApp sul telefono del diving: non vediamo i numeri dei clienti), "Copia il messaggio", "Copia solo il link". Elenco codici: "Gruppo · x/N usati".
 - Test: link di gruppo → recensione verificata; seconda recensione della stessa persona rifiutata; contatore 1/4.
+
+## Pagina /eudi e "Aggiungi la tua attività" (25/10/2026)
+- **Migrazione `20261025020000_business_suggestions.sql`** — applicata. Richieste di aggiunta attività (nome, città, tipi, email, telefono, sito, fonte, stato), RLS senza policy = solo service role; niente va online in automatico.
+- `/eudi` (mockup AB approvato): header "Ci vediamo a EUDI", ricerca della scheda → rivendica, "Perché esserci", modulo "Non trovi la tua attività?" (Turnstile, honeypot, email al team), sezione subacquei; Instagram e contatto compaiono quando `NEXT_PUBLIC_INSTAGRAM_URL` / `NEXT_PUBLIC_CONTACT_EMAIL` sono impostate. In sitemap.
+- `/per-i-diving`: il riquadro "Il tuo diving non è in elenco?" ora porta al modulo (`/eudi#aggiungi`) invece di aspettare l'email del dominio.
+- Accessibilità: bordo dei pulsanti "outline" scurito (`border-foreground/35`): prima era quasi invisibile su bianco (contrasto sotto 3:1).
+- Dati di prova: non cancellati ora (i test li usano); da pulire con conferma di Tommaso all'arrivo dei primi diving reali.
