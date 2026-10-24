@@ -134,3 +134,11 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Sito: filtro "Tipo di attività", tipo mostrato su card e scheda, scelta nel modulo di modifica (almeno uno), colonna `tipo_attivita` nel seed (vuoto = diving).
 - Card stampabili (`/dashboard/card/[id]`): "Genera e stampa 8 card" crea 8 codici validi 6 mesi e un A4 con 8 card ritagliabili, ognuna con il suo QR (codice già dentro: recensione verificata senza digitare). "Ristampa le card non usate". Poster aggiornato ("Chiedi la tua card allo staff"). Testi di FAQ, "Come verifichiamo" e sezione codici aggiornati (card 6 mesi, codici via link 30 giorni).
 - Foglio raccolta dati rigenerato: colonna tipo attività, regole sui dati, colonne Google in grigio "solo uso interno", obiettivi per tutta Italia.
+
+## Recensioni: "scrivi prima, conferma dopo" (25/10/2026)
+- Decisioni: niente login prima di scrivere (riduce l'attrito principale); invito WhatsApp in dashboard da fare dopo; report "censimento dei diving italiani" per EUDI pianificato a gennaio; il marketing si discute nella chat dedicata, non qui.
+- **Migrazione `20261025000000_review_drafts.sql`** — applicata. `review_drafts` (solo hash del token, email, centro, contenuto, scadenza 48 h; RLS senza policy = solo service role, INFO dell'advisor voluto) e funzione `user_id_by_email` (solo service role).
+- Flusso: il visitatore scrive la recensione + email → controllo del codice subito (errore prima dell'email) → bozza + email "Conferma la tua recensione" → `/recensione/conferma` con **pulsante** (non conferma automatica, così gli antivirus che aprono i link non pubblicano) → account creato o ritrovato per quell'email → stesse regole di salvataggio (`lib/review-save.ts`, condiviso con gli utenti loggati). Se nel frattempo il codice è stato usato, la recensione resta come non verificata.
+- Consenso: per chi non ha fatto login la casella finale include termini, privacy e 14 anni.
+- Il job giornaliero elimina anche le bozze scadute.
+- Limite noto: fino al dominio, Resend consegna solo all'email del proprietario dell'account, quindi le conferme arrivano solo a Tommaso.

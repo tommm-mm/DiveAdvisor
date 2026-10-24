@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { centerPath, getCenter } from "@/lib/centers";
 import { createClient } from "@/lib/supabase/server";
 import { turnstileSiteKey } from "@/lib/turnstile";
@@ -24,14 +24,16 @@ export default async function ReviewPage({ params, searchParams }: Props) {
   const c = await getCenter(regione, slug);
   if (!c) notFound();
 
-  const path = `${centerPath(c)}/recensione${codice ? `?codice=${encodeURIComponent(codice)}` : ""}`;
-  const user = await requireUser(path);
-
-  const supabase = await createClient();
-  // Divers may review again after a new dive; just remind them of their latest review.
-  const { data: latest } = await supabase
-    .from("reviews").select("dive_date").eq("center_id", c.id).eq("user_id", user.id)
-    .order("created_at", { ascending: false }).limit(1).maybeSingle();
+  // No login needed: visitors write first and confirm by email; logged-in users publish directly.
+  const user = await getUser();
+  let latest: { dive_date: string } | null = null;
+  if (user) {
+    // Divers may review again after a new dive; just remind them of their latest review.
+    const supabase = await createClient();
+    ({ data: latest } = await supabase
+      .from("reviews").select("dive_date").eq("center_id", c.id).eq("user_id", user.id)
+      .order("created_at", { ascending: false }).limit(1).maybeSingle());
+  }
 
   return (
     <main className="mx-auto max-w-xl px-4 py-8">
@@ -48,7 +50,7 @@ export default async function ReviewPage({ params, searchParams }: Props) {
         </p>
       )}
       <div className="mt-6">
-        <ReviewForm centerId={c.id} centerUrl={centerPath(c)} siteKey={turnstileSiteKey()} initialCode={codice ?? ""} />
+        <ReviewForm centerId={c.id} centerUrl={centerPath(c)} siteKey={turnstileSiteKey()} initialCode={codice ?? ""} needsEmail={!user} />
       </div>
     </main>
   );
