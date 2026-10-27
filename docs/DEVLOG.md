@@ -155,3 +155,8 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - `/per-i-diving`: il riquadro "Il tuo diving non è in elenco?" ora porta al modulo (`/eudi#aggiungi`) invece di aspettare l'email del dominio.
 - Accessibilità: bordo dei pulsanti "outline" scurito (`border-foreground/35`): prima era quasi invisibile su bianco (contrasto sotto 3:1).
 - Dati di prova: non cancellati ora (i test li usano); da pulire con conferma di Tommaso all'arrivo dei primi diving reali.
+
+## Bug in produzione: errore Turnstile senza chiavi (27/10/2026)
+- Tommaso: aprendo una scheda compariva "non riesce a caricarlo". Causa: in produzione mancano le chiavi Turnstile; il componente con render esplicito (introdotto il 24/10) chiamava `turnstile.render` con sitekey vuota → errore non gestito nel browser, che in alcuni browser fa scattare l'error boundary ("Non riusciamo a caricare i diving"). Nessun errore lato server (verificato con i log Vercel).
+- Fix: senza chiave il widget non viene disegnato (messaggio "Invio temporaneamente non disponibile") e il render è in try/catch. Il server continua a rifiutare gli invii senza verifica.
+- **Conseguenza da risolvere subito**: senza chiavi Turnstile in produzione nessun modulo funziona (contatto, recensione, aggiungi attività, rimozione). Le chiavi Turnstile non richiedono il dominio: si possono creare ora su Cloudflare per `dive-advisor.vercel.app` (e aggiungere il dominio a dicembre).
