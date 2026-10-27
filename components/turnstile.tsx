@@ -22,8 +22,14 @@ export const Turnstile = forwardRef<TurnstileHandle, { siteKey: string }>(functi
   const id = useRef<string | null>(null);
 
   const render = useCallback(() => {
-    if (!box.current || !window.turnstile || id.current) return;
-    id.current = window.turnstile.render(box.current, { sitekey: siteKey, size: "flexible", language: "it" });
+    // No key configured (production before the real Turnstile keys exist): never let the widget throw,
+    // an uncaught error here takes down the whole page. The server still fails closed on submit.
+    if (!siteKey || !box.current || !window.turnstile || id.current) return;
+    try {
+      id.current = window.turnstile.render(box.current, { sitekey: siteKey, size: "flexible", language: "it" });
+    } catch {
+      id.current = null;
+    }
   }, [siteKey]);
 
   useEffect(() => {
@@ -36,6 +42,10 @@ export const Turnstile = forwardRef<TurnstileHandle, { siteKey: string }>(functi
 
   // A token is single-use: forms reset the widget after each failed attempt.
   useImperativeHandle(ref, () => ({ reset: () => { if (id.current) window.turnstile?.reset(id.current); } }), []);
+
+  if (!siteKey) {
+    return <p className="text-sm text-muted-foreground">Invio temporaneamente non disponibile: verifica anti-spam in configurazione.</p>;
+  }
 
   return (
     <>
