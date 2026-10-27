@@ -124,7 +124,17 @@ export function sendSuggestionEmail(s: { name: string; city: string; email: stri
     to: adminInbox(),
     replyTo: s.email,
     subject: `Nuova attività da aggiungere: ${s.name}`,
-    text: `${lines.join("\n")}\n\nVerifica i dati, aggiungila al foglio di raccolta e importala. Poi segna la richiesta come imported nella tabella business_suggestions.`,
-    html: `<p>${lines.map(esc).join("<br>")}</p><p>Verifica i dati, aggiungila al foglio di raccolta e importala. Poi segna la richiesta come <code>imported</code> nella tabella <code>business_suggestions</code>.</p>`,
+    text: `${lines.join("\n")}\n\nVerifica i dati (sito, telefono). Per pubblicarla: Supabase, tabella business_suggestions, cambia status in approved. Per scartarla: rejected.`,
+    html: `<p>${lines.map(esc).join("<br>")}</p><p>Verifica i dati (sito, telefono). Per pubblicarla: Supabase, tabella <code>business_suggestions</code>, cambia <code>status</code> in <code>approved</code>. Per scartarla: <code>rejected</code>.</p>`,
+  });
+}
+
+// Sent once by the daily job when a suggested business has been approved and is online.
+export function sendSuggestionApprovedEmail(r: { to: string; name: string; url: string }) {
+  return sendEmail({
+    to: r.to,
+    subject: `${r.name} è online su DiveAdvisor`,
+    text: `Ciao,\n\nla scheda di ${r.name} è online: ${r.url}\n\nPer gestirla (foto, servizi, contatti, recensioni) aprila e scegli "Rivendica questa scheda": è gratis il primo anno.\n\nDiveAdvisor`,
+    html: `<p>Ciao,</p><p>la scheda di ${esc(r.name)} è online: <a href="${esc(r.url)}">${esc(r.url)}</a></p><p>Per gestirla (foto, servizi, contatti, recensioni) aprila e scegli "Rivendica questa scheda": è gratis il primo anno.</p><p>DiveAdvisor</p>`,
   });
 }

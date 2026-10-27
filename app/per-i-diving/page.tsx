@@ -109,7 +109,7 @@ export default function ForCentersPage() {
             <h2 className="text-2xl font-semibold">Il tuo diving non è in elenco?</h2>
             <p className="mt-1 opacity-90">Aggiungilo in un minuto, gratis. Verifichiamo noi i dati.</p>
           </div>
-          <a href="/eudi#aggiungi" className={buttonVariants({ variant: "secondary", className: "mt-4 h-11 rounded-xl px-6 sm:mt-0" })}>Aggiungi la tua attività</a>
+          <a href="/aggiungi-attivita" className={buttonVariants({ variant: "secondary", className: "mt-4 h-11 rounded-xl px-6 sm:mt-0" })}>Aggiungi la tua attività</a>
         </div>
       </section>
     </main>

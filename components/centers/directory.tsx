@@ -54,6 +54,9 @@ export async function Directory({ title, intro, filters, resetHref, showRegion =
               <Link href={resetHref} className="mt-3 inline-block text-sm text-primary underline-offset-4 hover:underline">
                 Azzera filtri
               </Link>
+              <p className="mt-4 text-sm text-muted-foreground">
+                Non trovi il diving? <Link href="/aggiungi-attivita" className="text-primary underline-offset-4 hover:underline">Aggiungilo</Link>
+              </p>
             </div>
           ) : (
             centers.map((c) => <CenterCard key={c.id} center={c} rating={ratings.get(c.id)} />)

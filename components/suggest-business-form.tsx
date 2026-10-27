@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Turnstile, type TurnstileHandle } from "@/components/turnstile";
 import { suggestBusiness, type SuggestState } from "@/app/eudi/actions";
 import { BUSINESS_TYPE_LABELS } from "@/lib/labels";
+import { REGIONS } from "@/lib/regions";
 
 const field = "w-full rounded-xl border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
-export function SuggestBusinessForm({ siteKey }: { siteKey: string }) {
+export function SuggestBusinessForm({ siteKey, source = "sito" }: { siteKey: string; source?: string }) {
   const [state, action, pending] = useActionState<SuggestState, FormData>(suggestBusiness, { status: "idle" });
   const widget = useRef<TurnstileHandle>(null);
   useEffect(() => { if (state.status === "error") widget.current?.reset(); }, [state]);
@@ -24,7 +25,7 @@ export function SuggestBusinessForm({ siteKey }: { siteKey: string }) {
   }
   const err = state.fieldErrors ?? {};
   const v = state.values;
-  const input = (name: "name" | "city" | "email" | "phone" | "website", label: string, type = "text") => (
+  const input = (name: "name" | "city" | "address" | "email" | "phone" | "website", label: string, type = "text") => (
     <div className="space-y-1.5">
       <Label htmlFor={`sg-${name}`}>{label}</Label>
       <input id={`sg-${name}`} name={name} type={type} defaultValue={v?.[name]} className={`${field} h-11`}
@@ -35,8 +36,19 @@ export function SuggestBusinessForm({ siteKey }: { siteKey: string }) {
   return (
     <form action={action} className="space-y-4" noValidate>
       <div className="hidden" aria-hidden><label>Non compilare<input name="company" tabIndex={-1} autoComplete="off" /></label></div>
+      <input type="hidden" name="source" value={source} />
       {input("name", "Nome dell'attività")}
+      <div className="space-y-1.5">
+        <Label htmlFor="sg-region">Regione</Label>
+        <select id="sg-region" name="region" defaultValue={v?.region ?? ""} className={`${field} h-11`}
+          aria-invalid={!!err.region} aria-describedby={err.region ? "sg-region-err" : undefined}>
+          <option value="" disabled>Scegli la regione</option>
+          {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+        </select>
+        {err.region && <p id="sg-region-err" className="text-sm text-destructive">{err.region}</p>}
+      </div>
       {input("city", "Città")}
+      {input("address", "Indirizzo (facoltativo, per la mappa)")}
       <fieldset className="space-y-2" aria-describedby={err.types ? "sg-types-err" : undefined}>
         <legend className="text-sm font-medium">Tipo di attività</legend>
         <div className="flex flex-wrap gap-2">
@@ -49,7 +61,7 @@ export function SuggestBusinessForm({ siteKey }: { siteKey: string }) {
         </div>
         {err.types && <p id="sg-types-err" className="text-sm text-destructive">{err.types}</p>}
       </fieldset>
-      {input("email", "Email", "email")}
+      {input("email", "Email dell'attività (visibile nella scheda)", "email")}
       {input("phone", "Telefono (facoltativo)", "tel")}
       {input("website", "Sito web (facoltativo)", "url")}
       <Turnstile ref={widget} siteKey={siteKey} />

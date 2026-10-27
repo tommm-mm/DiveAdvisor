@@ -12,6 +12,7 @@ test("EUDI page: find your listing and validate the add-business form", async ({
   await expect(page.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("", { timeout: 15000 });
   await page.getByRole("button", { name: "Aggiungi attività" }).click();
   await expect(page.getByText("Indica il nome dell'attività")).toBeVisible();
+  await expect(page.getByText("Scegli la regione").last()).toBeVisible();
   await expect(page.getByText("Indica la città")).toBeVisible();
   await expect(page.getByText("Inserisci un indirizzo email valido")).toBeVisible();
   await expect(page.getByText("Il sito deve iniziare con https://")).toBeVisible();
@@ -21,5 +22,7 @@ test("for-centres page links to the add-business form", async ({ page, isMobile 
   test.skip(isMobile, "once on desktop");
   await page.goto("/per-i-diving");
   await page.getByRole("link", { name: "Aggiungi la tua attività" }).click();
-  await expect(page).toHaveURL(/\/eudi#aggiungi$/);
+  await expect(page).toHaveURL(/\/aggiungi-attivita$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Aggiungi un'attività" })).toBeVisible();
+  await expect(page.getByLabel("Regione")).toBeVisible();
 });

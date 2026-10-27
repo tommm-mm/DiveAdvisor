@@ -160,3 +160,11 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Tommaso: aprendo una scheda compariva "non riesce a caricarlo". Causa: in produzione mancano le chiavi Turnstile; il componente con render esplicito (introdotto il 24/10) chiamava `turnstile.render` con sitekey vuota → errore non gestito nel browser, che in alcuni browser fa scattare l'error boundary ("Non riusciamo a caricare i diving"). Nessun errore lato server (verificato con i log Vercel).
 - Fix: senza chiave il widget non viene disegnato (messaggio "Invio temporaneamente non disponibile") e il render è in try/catch. Il server continua a rifiutare gli invii senza verifica.
 - **Conseguenza da risolvere subito**: senza chiavi Turnstile in produzione nessun modulo funziona (contatto, recensione, aggiungi attività, rimozione). Le chiavi Turnstile non richiedono il dominio: si possono creare ora su Cloudflare per `dive-advisor.vercel.app` (e aggiungere il dominio a dicembre).
+
+## 27/10/2026 — Aggiungi attività (flusso di approvazione)
+- Migrazione `20261027000000_suggestion_approval` (applicata): `business_suggestions` ha ora indirizzo, coordinate, `center_id`, `notified_at`; stato `pending/approved/imported/rejected`. Trigger `private.approve_business_suggestion()`: quando lo stato passa ad `approved` crea la scheda in `dive_centers` (slug come nel seed, `source='owner'`). Testata in transazione annullata. Advisor: nessun nuovo avviso.
+- Modulo: regione obbligatoria, indirizzo facoltativo (geocodifica Nominatim lato server), campo nascosto `source` (`sito` / `eudi`).
+- Nuova pagina `/aggiungi-attivita`, link da footer, `/per-i-diving` e stato "nessun risultato" della directory; in sitemap.
+- Cron giornaliero: email "la tua scheda è online" ai suggerimenti approvati, una sola volta (`notified_at`).
+- Verifiche: lint, typecheck, build, test `eudi.spec` (3 passati, 1 saltato su mobile).
+- Aperto: in produzione il modulo funziona solo dopo le chiavi Turnstile.
