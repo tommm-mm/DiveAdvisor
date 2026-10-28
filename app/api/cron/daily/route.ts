@@ -1,10 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendReviewRejectedEmail } from "@/lib/email";
+import { siteUrl } from "@/lib/site";
+import { sendReviewRejectedEmail, sendSuggestionApprovedEmail } from "@/lib/email";
 
 // Daily housekeeping, run by Vercel Cron (vercel.json). Vercel sends "Authorization: Bearer $CRON_SECRET".
 // 1. Retention: delete messages to centres older than 24 months (promised in /privacy).
 // 2. Moderation: email authors whose review was rejected, once, with the moderator's note (promised in /termini).
+// 3. Suggestions: tell the business its approved listing is online, once.
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
@@ -38,9 +40,24 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  const { data: approved, error: sugError } = await db
+    .from("business_suggestions").select("id, contact_email, name, dive_centers(slug)")
+    .eq("status", "approved").not("center_id", "is", null).is("notified_at", null).limit(50);
+  let approvedEmails = 0;
+  for (const s of approved ?? []) {
+    const slug = (s.dive_centers as unknown as { slug: string } | null)?.slug;
+    if (!slug) continue;
+    const sent = await sendSuggestionApprovedEmail({ to: s.contact_email, name: s.name, url: `${siteUrl()}/diving/${slug}` });
+    if (sent) {
+      await db.from("business_suggestions").update({ notified_at: new Date().toISOString() }).eq("id", s.id);
+      approvedEmails++;
+    }
+  }
+
   return NextResponse.json({
     deletedLeads: deletedLeads ?? 0,
     rejectionEmails: notified,
-    errors: [leadsError?.message, rejError?.message].filter(Boolean),
+    approvedSuggestionEmails: approvedEmails,
+    errors: [leadsError?.message, rejError?.message, sugError?.message].filter(Boolean),
   });
 }

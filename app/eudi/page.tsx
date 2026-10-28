@@ -57,7 +57,7 @@ export default function EudiPage() {
         <div className="rounded-2xl bg-sand p-5">
           <h2 id="aggiungi" className="text-xl font-semibold">Non trovi la tua attività?</h2>
           <p className="mb-4 mt-1 text-sm text-muted-foreground">Aggiungila in un minuto, verifichiamo noi i dati.</p>
-          <SuggestBusinessForm siteKey={turnstileSiteKey()} />
+          <SuggestBusinessForm siteKey={turnstileSiteKey()} source="eudi" />
         </div>
       </section>
 

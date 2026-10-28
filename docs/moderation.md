@@ -17,3 +17,9 @@ Criteri per rifiutare: insulti o dati personali, contenuti non legati a un'immer
 
 ## Recensioni verificate
 Sono pubblicate subito perché il codice dimostra l'immersione. Si possono comunque rifiutare dopo una segnalazione.
+
+## Nuove attività suggerite
+1. Supabase → Table editor → `business_suggestions`, filtra `status = pending`.
+2. Controlla i dati (nome, regione, città, email, sito). Correggi se serve.
+3. Imposta `status = approved`: la scheda viene creata subito; il giorno dopo l'attività riceve l'email con il link.
+4. Spam o dati non verificabili: `status = rejected`.
