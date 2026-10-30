@@ -26,7 +26,7 @@ export default async function DiveTypePage({ params, searchParams }: Props) {
   if (!seo) notFound();
   const filters = { ...parseFilters(await searchParams), tipo: [tipo] };
   // Link only regions that have this dive type, so we never link to empty pages.
-  const withType = await listCenters({ attivita: [], tipo: [tipo], federazione: [], lingua: [], servizio: [] });
+  const withType = await listCenters({ attivita: [], tipo: [tipo], federazione: [], lingua: [], servizio: [], specialita: [] });
   const regions = [...new Set(withType.map((c) => c.region))].sort((a, b) => a.localeCompare(b, "it"))
     .map((name) => ({ name, slug: regionSlug(name) }));
   return (

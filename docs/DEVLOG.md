@@ -176,3 +176,12 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Scritture con service role dopo il controllo admin; le schede rivendicate non si modificano dall'admin (solo nascondere).
 - Funzioni: elenco con ricerca e filtri, contatore verso gli obiettivi 60/100/150, casella richieste (approva/rifiuta), editor con link Google Maps (nome, indirizzo, città, provincia, regione, coordinate via Nominatim), avviso duplicati, foto con upload firmato diretto a Storage, riordino, "Salva e aggiungi un'altra", Ctrl+S.
 - Test: `tests/admin.spec.ts`. In locale manca la service role key, quindi il flusso completo è verificato sull'anteprima (variabile temporanea sul branch che rende admin l'utente di prova; da togliere dopo il merge).
+
+## 30/10/2026 — Livelli, profondità, specialità e prezzi
+- Richiesta: filtrare per "cosa posso fare io" (oltre 40 m, rebreather, Open Water, sidemount).
+- Decisioni (con Tommaso): capacità del diving, non catalogo di siti; livelli = fasce di profondità: Open Water 18 m, Advanced 30 m, Deep 40 m, Tech 1 45 m, Tech 2 60 m, Tech 3 oltre 60 m. Specialità: Nitrox, Trimix, CCR, Sidemount, Scooter, Notturna, Relitti, Grotte. Prezzi: immersione, pacchetto (n° + prezzo), noleggio, corso OW, corso Advanced, con fonte (sito/diving) e data.
+- Migrazione `20261030000000_levels_specialties_prices` (applicata): nuove colonne con vincoli, indici GIN, nitrox/trimix spostati da `services` a `specialties` (verificato su 7 schede di prova), grant di modifica al proprietario.
+- Ricerca: filtri "Il mio livello" (la scheda deve includere quel livello), "Specialità" (tutte quelle scelte), "Prezzo di un'immersione" (fino a 40/60/80 €). Card: riga "fino a 60 m · CCR · da 45 €". Scheda: sezione "Immersioni e prezzi" con nota "prezzi indicativi"; JSON-LD `priceRange`.
+- Editor admin: tocco sul livello più profondo seleziona anche i precedenti; data dei prezzi automatica quando cambiano. Editor proprietario: stessi campi, fonte "diving".
+- Seed: colonne facoltative `livelli` e `specialita`; nitrox/trimix in `servizi` vengono spostati.
+- Dati di prova su [TEST] Como Deep ed Elba per test e anteprima.

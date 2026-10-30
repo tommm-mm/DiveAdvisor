@@ -16,7 +16,12 @@ const ALLOWED: Record<string, string[]> = {
   tipi_immersione: ["lago", "mare", "tecnico", "corsi"],
   servizi: ["noleggio", "corsi", "ricarica", "barca", "nitrox", "trimix"],
   lingue: ["it", "en", "de", "fr", "es"],
+  // Optional columns: levels double as depth bands (ow 18 m … tech3 over 60 m).
+  livelli: ["ow", "aow", "deep", "tech1", "tech2", "tech3"],
+  specialita: ["nitrox", "trimix", "ccr", "sidemount", "dpv", "notturna", "relitti", "grotte"],
 };
+// Older sheets list nitrox/trimix under servizi: they are specialties now.
+const MOVED_TO_SPECIALTIES = ["nitrox", "trimix"];
 
 // Missing lat/lng are geocoded from the address with OpenStreetMap Nominatim (max 1 request/second,
 // identified client, results cached in data/geocode-cache.json so re-runs don't query again).
@@ -98,7 +103,9 @@ for (const [i, cols] of lines.entries()) {
     // Missing column or empty cell: a dive centre.
     business_types: list("tipo_attivita").length ? list("tipo_attivita") : ["diving"],
     federations: list("federazioni").map((v) => v.toUpperCase()), dive_types: list("tipi_immersione"),
-    services: list("servizi"), languages: list("lingue"), verified_at: r.data_verifica || null,
+    services: list("servizi").filter((v) => !MOVED_TO_SPECIALTIES.includes(v)),
+    specialties: [...new Set([...list("specialita"), ...list("servizi").filter((v) => MOVED_TO_SPECIALTIES.includes(v))])],
+    levels: list("livelli"), languages: list("lingue"), verified_at: r.data_verifica || null,
     source: "manual" as const,
   });
 }

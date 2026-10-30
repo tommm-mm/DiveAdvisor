@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { CenterBadges } from "@/components/centers/center-badges";
+import { DiveOffer } from "@/components/centers/dive-offer";
+import { DiveSummary } from "@/components/centers/dive-summary";
 import { MapPanel } from "@/components/centers/map-panel";
 import { CenterPhoto } from "@/components/centers/center-photo";
 import { VideoList } from "@/components/centers/video-list";
@@ -65,6 +67,7 @@ export default async function CenterPage({ params }: Props) {
       addressRegion: c.region,
       addressCountry: "IT",
     },
+    priceRange: c.price_dive != null ? `da ${c.price_dive} EUR` : undefined,
     geo: c.lat !== null && c.lng !== null ? { "@type": "GeoCoordinates", latitude: c.lat, longitude: c.lng } : undefined,
     aggregateRating: rating?.review_count
       ? { "@type": "AggregateRating", ratingValue: Number(rating.avg_overall), reviewCount: rating.review_count, bestRating: 5, worstRating: 1 }
@@ -114,6 +117,7 @@ export default async function CenterPage({ params }: Props) {
               {c.business_types.map((t) => label(BUSINESS_TYPE_LABELS, t)).join(" · ")}
             </p>
             <p className="text-muted-foreground">{location(c)}, {c.region}</p>
+            <DiveSummary center={c} />
             <CenterBadges center={c} />
             {c.languages.length > 0 && (
               <p className="text-sm">
@@ -127,6 +131,8 @@ export default async function CenterPage({ params }: Props) {
             <h2 id="descrizione" className="text-lg font-medium">Descrizione</h2>
             <p className="mt-2 text-sm leading-relaxed">{c.description ?? "Descrizione non ancora disponibile."}</p>
           </section>
+
+          <DiveOffer center={c} />
 
           {c.services.length > 0 && (
             <section aria-labelledby="servizi">

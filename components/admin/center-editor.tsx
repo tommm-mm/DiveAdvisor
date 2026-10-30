@@ -8,14 +8,15 @@ import { createClient } from "@/lib/supabase/client";
 import { compress } from "@/lib/compress-image";
 import { MAX_PHOTOS, PHOTO_BUCKET, photoUrl } from "@/lib/photos";
 import { REGIONS } from "@/lib/regions";
-import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, LEVELS, SERVICE_LABELS, SPECIALTY_LABELS } from "@/lib/labels";
 import {
   addPhoto, findSimilar, lookupMapsLink, photoUploadUrl, removePhoto, reorderPhotos, saveCenter, setHidden,
 } from "@/app/admin/actions";
 
 const TEXT_KEYS = ["id", "name", "region", "city", "province", "address", "lat", "lng", "description", "phone", "whatsapp",
-  "email", "website", "instagram", "season"] as const;
-const LIST_KEYS = ["business_types", "federations", "dive_types", "services", "languages", "video_urls"] as const;
+  "email", "website", "instagram", "season", "price_dive", "price_pack", "price_pack_dives", "price_rental", "price_course_ow",
+  "price_course_aow", "prices_source", "prices_updated_at"] as const;
+const LIST_KEYS = ["business_types", "federations", "dive_types", "services", "languages", "video_urls", "levels", "specialties"] as const;
 type TextKey = (typeof TEXT_KEYS)[number];
 type ListKey = (typeof LIST_KEYS)[number];
 type Values = Record<TextKey, string> & Record<ListKey, string[]>;
@@ -375,6 +376,58 @@ export function CenterEditor({ center, publicUrl, justCreated }: { center?: Edit
             )}
           </ul>
           <p className="text-xs text-muted-foreground">Solo foto tue, del tuo socio o con il permesso del diving. Le comprimiamo e togliamo la posizione GPS.</p>
+        </section>
+
+        <section className={`${card} lg:col-span-2`} aria-labelledby="sec-dives">
+          <h2 id="sec-dives" className="font-sans text-lg font-semibold">Immersioni e prezzi</h2>
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">Livelli e profondità</legend>
+            <p className="text-xs text-muted-foreground">Tocca il livello più profondo: selezioniamo anche quelli prima. Ritocca per togliere.</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+              {LEVELS.map((l, i) => {
+                const on = v.levels.includes(l.value);
+                return (
+                  <button key={l.value} type="button" role="checkbox" aria-checked={on} disabled={locked}
+                    onClick={() => {
+                      const next = on ? v.levels.filter((x) => x !== l.value) : [...new Set([...v.levels, ...LEVELS.slice(0, i + 1).map((x) => x.value)])];
+                      setV((p) => ({ ...p, levels: LEVELS.map((x) => x.value).filter((x) => next.includes(x)) }));
+                      setDirty(true);
+                    }}
+                    className={`flex h-16 flex-col items-center justify-center rounded-xl border text-sm transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/40 ${on ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:border-primary"}`}>
+                    <span className="font-semibold">{l.label}</span>
+                    <span className="text-xs tabular-nums opacity-80">{l.depth}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+          {chips("specialties", "Specialità", Object.entries(SPECIALTY_LABELS))}
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium">Prezzi in euro (lascia vuoto se non li conosci)</legend>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {input("price_dive", "Immersione singola", { inputMode: "decimal", placeholder: "€" })}
+              <div className="grid grid-cols-[5rem_1fr] gap-2">
+                {input("price_pack_dives", "N° imm.", { inputMode: "decimal", placeholder: "10" })}
+                {input("price_pack", "Pacchetto", { inputMode: "decimal", placeholder: "€" })}
+              </div>
+              {input("price_rental", "Noleggio completo", { inputMode: "decimal", placeholder: "€" })}
+              {input("price_course_ow", "Corso Open Water", { inputMode: "decimal", placeholder: "€" })}
+              {input("price_course_aow", "Corso Advanced", { inputMode: "decimal", placeholder: "€" })}
+              <div className="space-y-1.5">
+                <label htmlFor="ad-prices_source" className="text-sm font-medium">Fonte</label>
+                <select id="ad-prices_source" name="prices_source" value={v.prices_source} disabled={locked}
+                  onChange={(e) => set("prices_source", e.target.value)} className={`${field} h-12`}>
+                  <option value="">—</option>
+                  <option value="sito">Sito del diving</option>
+                  <option value="diving">Chiesto al diving</option>
+                </select>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {v.prices_updated_at ? `Aggiornati il ${new Date(v.prices_updated_at).toLocaleDateString("it-IT")}. ` : ""}
+              La data si aggiorna da sola quando cambi un prezzo.
+            </p>
+          </fieldset>
         </section>
 
         <section className={`${card} lg:col-span-2`} aria-labelledby="sec-details">

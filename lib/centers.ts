@@ -26,6 +26,16 @@ export type Center = {
   verified_at: string | null;
   video_urls: string[];
   business_types: string[];
+  levels: string[];
+  specialties: string[];
+  price_dive: number | null;
+  price_pack: number | null;
+  price_pack_dives: number | null;
+  price_rental: number | null;
+  price_course_ow: number | null;
+  price_course_aow: number | null;
+  prices_source: string | null;
+  prices_updated_at: string | null;
   center_photos: { path: string; position: number; alt: string | null }[];
 };
 
@@ -37,6 +47,9 @@ export type CenterFilters = {
   federazione: string[];
   lingua: string[];
   servizio: string[];
+  livello?: string; // diver's level: centres that dive to it
+  specialita: string[]; // all must match (a diver wants CCR *and* wrecks)
+  prezzo?: number; // max price of a single dive
 };
 
 export type FilterOptions = {
@@ -46,10 +59,12 @@ export type FilterOptions = {
   federations: string[];
   languages: string[];
   services: string[];
+  levels: string[];
+  specialties: string[];
 };
 
 const LIST_COLUMNS =
-  "id, slug, name, description, region, province, city, address, lat, lng, phone, whatsapp, email, website, instagram, federations, dive_types, services, languages, season, status, verified_at, video_urls, business_types, center_photos(path, position, alt)";
+  "id, slug, name, description, region, province, city, address, lat, lng, phone, whatsapp, email, website, instagram, federations, dive_types, services, languages, season, status, verified_at, video_urls, business_types, levels, specialties, price_dive, price_pack, price_pack_dives, price_rental, price_course_ow, price_course_aow, prices_source, prices_updated_at, center_photos(path, position, alt)";
 
 export const regionSlug = (region: string) => slugify(region);
 export const centerPath = (c: Pick<Center, "region" | "slug">) => `/diving/${regionSlug(c.region)}/${c.slug}`;
@@ -67,6 +82,9 @@ export function parseFilters(params: Record<string, string | string[] | undefine
     federazione: arr(params.federazione),
     lingua: arr(params.lingua),
     servizio: arr(params.servizio),
+    livello: arr(params.livello)[0],
+    specialita: arr(params.specialita),
+    prezzo: Number(arr(params.prezzo)[0]) > 0 ? Number(arr(params.prezzo)[0]) : undefined,
   };
 }
 
@@ -97,6 +115,9 @@ export async function listCenters(filters: CenterFilters): Promise<Center[]> {
   if (filters.federazione.length) query = query.overlaps("federations", filters.federazione);
   if (filters.lingua.length) query = query.overlaps("languages", filters.lingua);
   if (filters.servizio.length) query = query.overlaps("services", filters.servizio);
+  if (filters.livello) query = query.contains("levels", [filters.livello]);
+  if (filters.specialita.length) query = query.contains("specialties", filters.specialita);
+  if (filters.prezzo) query = query.lte("price_dive", filters.prezzo);
   const { data, error } = await query;
   if (error) throw error;
   return data as Center[];
@@ -106,9 +127,9 @@ export async function listCenters(filters: CenterFilters): Promise<Center[]> {
 export async function getFilterOptions(): Promise<FilterOptions> {
   const { data, error } = await createPublicClient()
     .from("dive_centers")
-    .select("region, business_types, dive_types, federations, languages, services");
+    .select("region, business_types, dive_types, federations, languages, services, levels, specialties");
   if (error) throw error;
-  const uniq = (key: "business_types" | "dive_types" | "federations" | "languages" | "services") =>
+  const uniq = (key: "business_types" | "dive_types" | "federations" | "languages" | "services" | "levels" | "specialties") =>
     [...new Set(data.flatMap((r) => r[key] as string[]))].sort();
   const regions = [...new Set(data.map((r) => r.region as string))]
     .sort((a, b) => a.localeCompare(b, "it"))
@@ -120,6 +141,8 @@ export async function getFilterOptions(): Promise<FilterOptions> {
     federations: uniq("federations"),
     languages: uniq("languages"),
     services: uniq("services"),
+    levels: uniq("levels"),
+    specialties: uniq("specialties"),
   };
 }
 

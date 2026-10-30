@@ -12,7 +12,7 @@ export default async function EditCenterAdminPage({ params, searchParams }: {
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
   const { data } = await createAdminClient().from("dive_centers")
-    .select("id, slug, name, region, city, province, address, lat, lng, description, phone, whatsapp, email, website, instagram, season, business_types, federations, dive_types, services, languages, video_urls, hidden, owner_id, center_photos(id, path, position)")
+    .select("id, slug, name, region, city, province, address, lat, lng, description, phone, whatsapp, email, website, instagram, season, business_types, federations, dive_types, services, languages, video_urls, levels, specialties, price_dive, price_pack, price_pack_dives, price_rental, price_course_ow, price_course_aow, prices_source, prices_updated_at, hidden, owner_id, center_photos(id, path, position)")
     .eq("id", id).maybeSingle();
   if (!data) notFound();
   return (
