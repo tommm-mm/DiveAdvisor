@@ -5,21 +5,9 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { MAX_PHOTOS, PHOTO_BUCKET, photoUrl } from "@/lib/photos";
 import { photosChanged } from "@/app/dashboard/scheda/[id]/actions";
+import { compress } from "@/lib/compress-image";
 
 type Photo = { id: string; path: string; position: number };
-
-// Resize to max 1600 px and re-encode as WebP in the browser: uploads stay small even on mobile data,
-// and EXIF metadata (e.g. GPS position) is dropped.
-async function compress(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  return new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode"))), "image/webp", 0.82));
-}
 
 export function PhotoManager({ centerId, centerName, initial }: { centerId: string; centerName: string; initial: Photo[] }) {
   const [photos, setPhotos] = useState<Photo[]>([...initial].sort((a, b) => a.position - b.position));

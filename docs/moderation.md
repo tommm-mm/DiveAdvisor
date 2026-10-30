@@ -23,3 +23,5 @@ Sono pubblicate subito perché il codice dimostra l'immersione. Si possono comun
 2. Controlla i dati (nome, regione, città, email, sito). Correggi se serve.
 3. Imposta `status = approved`: la scheda viene creata subito; il giorno dopo l'attività riceve l'email con il link.
 4. Spam o dati non verificabili: `status = rejected`.
+
+Più semplice: le richieste compaiono anche in cima a `/admin`, con i pulsanti Approva e Rifiuta.
