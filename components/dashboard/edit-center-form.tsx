@@ -4,13 +4,25 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { updateCenter, type EditState } from "@/app/dashboard/scheda/[id]/actions";
-import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, LEVELS, SERVICE_LABELS, SPECIALTY_LABELS } from "@/lib/labels";
 
 type Center = {
   id: string; description: string | null; address: string | null; phone: string | null; whatsapp: string | null;
   email: string | null; website: string | null; instagram: string | null; season: string | null;
   business_types: string[]; federations: string[]; dive_types: string[]; services: string[]; languages: string[]; video_urls: string[];
+  levels: string[]; specialties: string[];
+  price_dive: number | null; price_pack: number | null; price_pack_dives: number | null; price_rental: number | null;
+  price_course_ow: number | null; price_course_aow: number | null;
 };
+
+const PRICE_FIELDS = [
+  { name: "price_dive", label: "Immersione singola (€)" },
+  { name: "price_pack_dives", label: "Pacchetto: n° immersioni" },
+  { name: "price_pack", label: "Pacchetto: prezzo (€)" },
+  { name: "price_rental", label: "Noleggio completo (€)" },
+  { name: "price_course_ow", label: "Corso Open Water (€)" },
+  { name: "price_course_aow", label: "Corso Advanced (€)" },
+] as const;
 
 const field = "w-full rounded-lg border bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
@@ -28,10 +40,10 @@ export function EditCenterForm({ center }: { center: Center }) {
   const [state, action, pending] = useActionState<EditState, FormData>(updateCenter, { status: "idle" });
   const err = state.fieldErrors ?? {};
   // After a submit, show what the owner typed (not the stale server copy).
-  const text = (k: keyof Center) => (state.values?.[k] as string | undefined) ?? (center[k] as string | null) ?? "";
+  const text = (k: keyof Center) => (state.values?.[k] as string | undefined) ?? (center[k] == null ? "" : String(center[k]));
   const list = (k: keyof Center) => (state.values?.[k] as string[] | undefined) ?? (center[k] as string[]);
 
-  const group = (name: keyof Pick<Center, "business_types" | "federations" | "dive_types" | "services" | "languages">, title: string, options: [string, string][]) => (
+  const group = (name: keyof Pick<Center, "business_types" | "federations" | "dive_types" | "services" | "languages" | "levels" | "specialties">, title: string, options: [string, string][]) => (
     <fieldset className="space-y-2">
       <legend className="text-sm font-medium">{title}</legend>
       <div className="flex flex-wrap gap-2">
@@ -69,6 +81,21 @@ export function EditCenterForm({ center }: { center: Center }) {
       {err.business_types && <p className="-mt-4 text-sm text-destructive">{err.business_types}</p>}
       {group("dive_types", "Tipi di immersione", Object.entries(DIVE_TYPE_LABELS))}
       {group("federations", "Federazioni", FEDERATIONS.map((f) => [f, f]))}
+      {group("levels", "Livelli e profondità a cui porti i subacquei", LEVELS.map((l) => [l.value, `${l.label} · ${l.depth}`]))}
+      {group("specialties", "Specialità", Object.entries(SPECIALTY_LABELS))}
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">Prezzi indicativi (facoltativi)</legend>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {PRICE_FIELDS.map((f) => (
+            <div key={f.name} className="space-y-1.5">
+              <Label htmlFor={`e-${f.name}`}>{f.label}</Label>
+              <input id={`e-${f.name}`} name={f.name} inputMode="decimal" defaultValue={text(f.name)} className={`${field} h-10`}
+                aria-invalid={!!err[f.name]} aria-describedby={err[f.name] ? `e-${f.name}-err` : undefined} />
+              {err[f.name] && <p id={`e-${f.name}-err`} className="text-sm text-destructive">{err[f.name]}</p>}
+            </div>
+          ))}
+        </div>
+      </fieldset>
       {group("services", "Servizi", Object.entries(SERVICE_LABELS))}
       {group("languages", "Lingue parlate", Object.entries(LANGUAGE_LABELS))}
 

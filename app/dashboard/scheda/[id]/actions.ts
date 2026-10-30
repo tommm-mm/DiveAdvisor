@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { centerPath } from "@/lib/centers";
-import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, LEVELS, SERVICE_LABELS, SPECIALTY_LABELS } from "@/lib/labels";
 import { parseVideo } from "@/lib/videos";
 
 export type EditState = {
@@ -15,6 +15,10 @@ export type EditState = {
 
 const optional = (max: number) => z.string().trim().max(max, `Massimo ${max} caratteri`).transform((v) => v || null);
 const oneOf = (allowed: string[]) => z.array(z.string()).transform((vs) => vs.filter((v) => allowed.includes(v)));
+
+const price = z.string().trim().transform((v) => (v ? Number(v.replace(/[€\s]/g, "").replace(",", ".")) : null))
+  .refine((v) => v === null || (Number.isFinite(v) && v >= 0 && v <= 10000), "Prezzo non valido");
+const PRICE_KEYS = ["price_dive", "price_pack", "price_rental", "price_course_ow", "price_course_aow", "price_pack_dives"] as const;
 
 const schema = z.object({
   id: z.uuid(),
@@ -35,6 +39,11 @@ const schema = z.object({
     .transform((vs) => vs.filter(Boolean))
     .refine((vs) => vs.every((v) => parseVideo(v)), "Usa un link di YouTube o di un post/reel Instagram (https://…)")
     .transform((vs) => vs.map((v) => parseVideo(v)!.url)),
+  levels: oneOf(LEVELS.map((l) => l.value)),
+  specialties: oneOf(Object.keys(SPECIALTY_LABELS)),
+  price_dive: price, price_pack: price, price_rental: price, price_course_ow: price, price_course_aow: price,
+  price_pack_dives: z.string().trim().transform((v) => (v ? Number(v) : null))
+    .refine((v) => v === null || (Number.isInteger(v) && v >= 2 && v <= 100), "Da 2 a 100"),
 });
 
 // RLS ("centers: owner update") and the column grant restrict this to the owner and to these fields.
@@ -45,7 +54,9 @@ export async function updateCenter(_prev: EditState, form: FormData): Promise<Ed
     description: text("description"), address: text("address"), phone: text("phone"), whatsapp: text("whatsapp"),
     email: text("email").trim(), website: text("website").trim(), instagram: text("instagram"), season: text("season"),
     business_types: lists("business_types"), federations: lists("federations"), dive_types: lists("dive_types"), services: lists("services"), languages: lists("languages"),
-    video_urls: lists("video_urls"),
+    video_urls: lists("video_urls"), levels: lists("levels"), specialties: lists("specialties"),
+    price_dive: text("price_dive"), price_pack: text("price_pack"), price_pack_dives: text("price_pack_dives"),
+    price_rental: text("price_rental"), price_course_ow: text("price_course_ow"), price_course_aow: text("price_course_aow"),
   };
   const parsed = schema.safeParse({ id: form.get("id"), ...values });
   if (!parsed.success) {
@@ -55,7 +66,16 @@ export async function updateCenter(_prev: EditState, form: FormData): Promise<Ed
   }
   const { id, ...fields } = parsed.data;
   const supabase = await createClient();
-  const { data, error } = await supabase.from("dive_centers").update(fields).eq("id", id).select("slug, region").maybeSingle();
+  // Prices entered by the owner: source "diving", dated when they change.
+  const { data: current } = await supabase.from("dive_centers")
+    .select("price_dive, price_pack, price_pack_dives, price_rental, price_course_ow, price_course_aow").eq("id", id).maybeSingle();
+  const changed = !current || PRICE_KEYS.some((k) => (current[k] === null ? null : Number(current[k])) !== fields[k]);
+  const priceMeta = changed
+    ? PRICE_KEYS.some((k) => fields[k] !== null)
+      ? { prices_source: "diving", prices_updated_at: new Date().toISOString().slice(0, 10) }
+      : { prices_source: null, prices_updated_at: null }
+    : {};
+  const { data, error } = await supabase.from("dive_centers").update({ ...fields, ...priceMeta }).eq("id", id).select("slug, region").maybeSingle();
   if (error || !data) return { status: "error", message: "Non siamo riusciti a salvare. Riprova.", values };
   revalidatePath(centerPath(data));
   revalidatePath("/dashboard");

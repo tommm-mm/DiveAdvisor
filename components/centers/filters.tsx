@@ -5,7 +5,7 @@ import { useTransition } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, LANGUAGE_LABELS, SERVICE_LABELS, label } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, LANGUAGE_LABELS, LEVELS, SERVICE_LABELS, SPECIALTY_LABELS, label } from "@/lib/labels";
 import type { FilterOptions } from "@/lib/centers";
 
 type Props = { options: FilterOptions; showRegion?: boolean; showType?: boolean };
@@ -35,11 +35,13 @@ export function Filters({ options, showRegion = true, showType = true }: Props) 
     if (next.toString() !== params.toString()) push(next);
   };
 
-  const setRegion = (value: string) => {
+  const setOne = (key: string, value: string) => {
     const next = new URLSearchParams(params);
-    if (value) next.set("regione", value); else next.delete("regione");
+    if (value) next.set(key, value); else next.delete(key);
     push(next);
   };
+  const setRegion = (value: string) => setOne("regione", value);
+  const select = "h-9 w-full rounded-lg border bg-background px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
   const groups = [
     { key: "attivita", title: "Tipo di attività", values: options.businessTypes, map: BUSINESS_TYPE_LABELS },
@@ -47,6 +49,7 @@ export function Filters({ options, showRegion = true, showType = true }: Props) 
     ...(showType ? [{ key: "tipo", title: "Tipo di immersione", values: options.diveTypes, map: DIVE_TYPE_LABELS }] : []),
     { key: "federazione", title: "Federazione", values: options.federations, map: {} },
     { key: "lingua", title: "Lingue parlate", values: options.languages, map: LANGUAGE_LABELS },
+    { key: "specialita", title: "Specialità", values: Object.keys(SPECIALTY_LABELS).filter((v) => options.specialties.includes(v)), map: SPECIALTY_LABELS },
     { key: "servizio", title: "Servizi", values: options.services, map: SERVICE_LABELS },
   ];
 
@@ -69,7 +72,7 @@ export function Filters({ options, showRegion = true, showType = true }: Props) 
           <Label htmlFor="filter-region">Regione</Label>
           <select
             id="filter-region"
-            className="h-9 w-full rounded-lg border bg-background px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            className={select}
             value={params.get("regione") ?? ""}
             onChange={(e) => setRegion(e.target.value)}
           >
@@ -78,7 +81,23 @@ export function Filters({ options, showRegion = true, showType = true }: Props) 
           </select>
         </div>
       )}
-      {groups.map((g) => (
+      <div className="space-y-2">
+        <Label htmlFor="filter-level">Il mio livello</Label>
+        <select id="filter-level" className={select} value={params.get("livello") ?? ""} onChange={(e) => setOne("livello", e.target.value)}>
+          <option value="">Qualsiasi</option>
+          {LEVELS.filter((l) => options.levels.includes(l.value)).map((l) => (
+            <option key={l.value} value={l.value}>{l.label} ({l.depth})</option>
+          ))}
+        </select>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="filter-price">Prezzo di un&apos;immersione</Label>
+        <select id="filter-price" className={select} value={params.get("prezzo") ?? ""} onChange={(e) => setOne("prezzo", e.target.value)}>
+          <option value="">Qualsiasi</option>
+          {[40, 60, 80].map((p) => <option key={p} value={p}>Fino a {p} €</option>)}
+        </select>
+      </div>
+      {groups.filter((g) => g.values.length).map((g) => (
         <fieldset key={g.key} className="space-y-2">
           <legend className="mb-2 text-sm font-medium">{g.title}</legend>
           {g.values.map((v) => {

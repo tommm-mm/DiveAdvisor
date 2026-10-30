@@ -51,3 +51,24 @@ test("activity type is shown and filterable", async ({ page }) => {
   // No test shop exists: the empty state must appear.
   await expect(page.getByText("Nessun diving corrisponde ai filtri")).toBeVisible();
 });
+
+// Relies on the [TEST] data: Como Deep (to Tech 2, CCR, 45 €) and Elba (to Advanced, 38 €).
+test("filter by level, specialty and price, then see dives and prices", async ({ page, isMobile }) => {
+  test.skip(isMobile, "once on desktop");
+  await page.goto("/diving?livello=tech2&specialita=ccr");
+  await expect(page.getByLabel("Il mio livello")).toHaveValue("tech2");
+  await expect(page.getByRole("checkbox", { name: "Rebreather (CCR)" })).toBeChecked();
+  const como = page.getByRole("article").filter({ hasText: "[TEST] Como Deep Prova" });
+  await expect(como.getByText(/fino a 60 m · .*CCR.* · da 45/)).toBeVisible();
+  await expect(page.getByRole("article").filter({ hasText: "[TEST] Elba Diving Prova" })).toHaveCount(0);
+
+  await page.goto("/diving?prezzo=40");
+  await expect(page.getByRole("article").filter({ hasText: "[TEST] Elba Diving Prova" })).toBeVisible();
+  await expect(page.getByRole("article").filter({ hasText: "[TEST] Como Deep Prova" })).toHaveCount(0);
+
+  await page.goto("/diving?livello=tech2");
+  await como.getByRole("link").first().click();
+  await expect(page.getByRole("heading", { name: "Immersioni e prezzi" })).toBeVisible();
+  await expect(page.getByText("Pacchetto 10 immersioni")).toBeVisible();
+  await expect(page.getByText(/conferma sempre con il diving/)).toBeVisible();
+});

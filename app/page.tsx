@@ -20,7 +20,7 @@ export default async function Home() {
   const [regions, options, centers] = await Promise.all([
     listRegionCounts(),
     getFilterOptions(),
-    listCenters({ attivita: [], tipo: [], federazione: [], lingua: [], servizio: [] }),
+    listCenters({ attivita: [], tipo: [], federazione: [], lingua: [], servizio: [], specialita: [] }),
   ]);
   const ratings = await getRatings(centers.map((c) => c.id));
   // Featured: best rated first, then the rest alphabetically.

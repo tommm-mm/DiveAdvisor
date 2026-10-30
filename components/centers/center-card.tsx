@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CenterBadges } from "@/components/centers/center-badges";
 import { CenterPhoto } from "@/components/centers/center-photo";
+import { DiveSummary } from "@/components/centers/dive-summary";
 import { centerPath, sortedPhotos, type Center } from "@/lib/centers";
 import type { Rating } from "@/lib/review-utils";
 import { BUSINESS_TYPE_LABELS, label } from "@/lib/labels";
@@ -33,6 +34,7 @@ export function CenterCard({ center, rating }: { center: Center; rating?: Rating
         <p className="text-sm text-muted-foreground">
           {[center.city, center.province && `(${center.province})`].filter(Boolean).join(" ")}, {center.region}
         </p>
+        <DiveSummary center={center} />
         <CenterBadges center={center} />
       </div>
     </article>

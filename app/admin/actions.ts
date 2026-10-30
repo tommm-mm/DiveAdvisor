@@ -7,7 +7,7 @@ import { requireAdmin } from "@/lib/admin";
 import { centerPath } from "@/lib/centers";
 import { geocode } from "@/lib/geocode";
 import { resolvePlace, type PlaceGuess } from "@/lib/maps-link";
-import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, SERVICE_LABELS, slugify } from "@/lib/labels";
+import { BUSINESS_TYPE_LABELS, DIVE_TYPE_LABELS, FEDERATIONS, LANGUAGE_LABELS, LEVELS, SERVICE_LABELS, SPECIALTY_LABELS, slugify } from "@/lib/labels";
 import { MAX_PHOTOS, PHOTO_BUCKET } from "@/lib/photos";
 import { REGIONS } from "@/lib/regions";
 import { parseVideo } from "@/lib/videos";
@@ -20,6 +20,10 @@ const oneOf = (allowed: string[]) => z.array(z.string()).transform((vs) => vs.fi
 const coord = (min: number, max: number) =>
   z.string().trim().transform((v) => (v ? Number(v.replace(",", ".")) : null))
     .refine((v) => v === null || (Number.isFinite(v) && v >= min && v <= max), "Coordinata non valida");
+
+const price = z.string().trim().transform((v) => (v ? Number(v.replace(/[€\s]/g, "").replace(",", ".")) : null))
+  .refine((v) => v === null || (Number.isFinite(v) && v >= 0 && v <= 10000), "Prezzo non valido");
+const PRICE_KEYS = ["price_dive", "price_pack", "price_rental", "price_course_ow", "price_course_aow"] as const;
 
 const schema = z.object({
   id: z.union([z.literal(""), z.uuid()]),
@@ -46,6 +50,12 @@ const schema = z.object({
     .transform((vs) => vs.filter(Boolean))
     .refine((vs) => vs.every((v) => parseVideo(v)), "Usa un link YouTube o Instagram")
     .transform((vs) => vs.map((v) => parseVideo(v)!.url)),
+  levels: oneOf(LEVELS.map((l) => l.value)),
+  specialties: oneOf(Object.keys(SPECIALTY_LABELS)),
+  price_dive: price, price_pack: price, price_rental: price, price_course_ow: price, price_course_aow: price,
+  price_pack_dives: z.string().trim().transform((v) => (v ? Number(v) : null))
+    .refine((v) => v === null || (Number.isInteger(v) && v >= 2 && v <= 100), "Da 2 a 100"),
+  prices_source: z.enum(["", "sito", "diving"]).transform((v) => v || null),
 });
 
 export type SaveResult =
@@ -77,6 +87,10 @@ export async function saveCenter(form: FormData): Promise<SaveResult> {
     instagram: text("instagram"), season: text("season"),
     business_types: lists("business_types"), federations: lists("federations"), dive_types: lists("dive_types"),
     services: lists("services"), languages: lists("languages"), video_urls: lists("video_urls"),
+    levels: lists("levels"), specialties: lists("specialties"),
+    price_dive: text("price_dive"), price_pack: text("price_pack"), price_rental: text("price_rental"),
+    price_course_ow: text("price_course_ow"), price_course_aow: text("price_course_aow"),
+    price_pack_dives: text("price_pack_dives"), prices_source: text("prices_source"),
   });
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
@@ -90,14 +104,21 @@ export async function saveCenter(form: FormData): Promise<SaveResult> {
     if (hit) { fields.lat = hit.lat; fields.lng = hit.lng; }
   }
   const db = createAdminClient();
+  const today = new Date().toISOString().slice(0, 10);
+  // Prices carry the date they were last changed, so the page can say how fresh they are.
+  let prices_updated_at: string | null | undefined = PRICE_KEYS.some((k) => fields[k] !== null) ? today : null;
 
   if (id) {
     // Claimed listings belong to their owner: the team does not overwrite them.
-    const { data: current } = await db.from("dive_centers").select("owner_id").eq("id", id).maybeSingle();
+    const { data: current } = await db.from("dive_centers")
+      .select("owner_id, prices_updated_at, price_pack_dives, price_dive, price_pack, price_rental, price_course_ow, price_course_aow").eq("id", id).maybeSingle();
     if (!current) return { ok: false, message: "Scheda non trovata." };
     if (current.owner_id) return { ok: false, message: "Questa scheda è gestita dal suo proprietario: non si modifica da qui." };
+    const unchanged = PRICE_KEYS.every((k) => (current[k] === null ? null : Number(current[k])) === fields[k])
+      && current.price_pack_dives === fields.price_pack_dives;
+    if (unchanged) prices_updated_at = current.prices_updated_at;
     const { data, error } = await db.from("dive_centers")
-      .update({ ...fields, verified_at: new Date().toISOString().slice(0, 10) })
+      .update({ ...fields, prices_updated_at, verified_at: today })
       .eq("id", id).select("id, slug, region").single();
     if (error || !data) return { ok: false, message: "Salvataggio non riuscito. Riprova." };
     refresh(data);
@@ -106,7 +127,7 @@ export async function saveCenter(form: FormData): Promise<SaveResult> {
 
   const slug = await uniqueSlug(db, slugify(`${fields.name} ${fields.city}`).slice(0, 80));
   const { data, error } = await db.from("dive_centers")
-    .insert({ ...fields, slug, source: "manual", verified_at: new Date().toISOString().slice(0, 10) })
+    .insert({ ...fields, slug, prices_updated_at, source: "manual", verified_at: today })
     .select("id, slug, region").single();
   if (error || !data) return { ok: false, message: "Salvataggio non riuscito. Riprova." };
   refresh(data);
