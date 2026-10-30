@@ -56,7 +56,7 @@ export function AdminList({ centers }: { centers: AdminCenter[] }) {
     const needle = normalize(q.trim());
     return centers.filter((c) => {
       const isTest = c.name.startsWith("[TEST]");
-      if (filter === "test" ? !isTest : isTest && filter !== "all") return false;
+      if (filter === "test" ? !isTest : isTest && (filter === "todo" || filter === "nophoto")) return false;
       if (filter === "hidden" && !c.hidden) return false;
       if (filter === "todo" && missing(c).length === 0) return false;
       if (filter === "nophoto" && c.center_photos.length) return false;
