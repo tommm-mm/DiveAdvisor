@@ -168,3 +168,11 @@ Serve a Tommaso per seguire il progetto e alle sessioni future di Claude per rip
 - Cron giornaliero: email "la tua scheda è online" ai suggerimenti approvati, una sola volta (`notified_at`).
 - Verifiche: lint, typecheck, build, test `eudi.spec` (3 passati, 1 saltato su mobile).
 - Aperto: in produzione il modulo funziona solo dopo le chiavi Turnstile.
+
+## 28–30/10/2026 — Area admin (/admin)
+- Obiettivo: inserire 100+ schede velocemente dal tablet.
+- Migrazione `20261028000000_center_hidden` (applicata il 30/10 dopo due conferme scadute): colonna `dive_centers.hidden`; la policy di lettura pubblica esclude le schede nascoste (il proprietario vede comunque la sua). Advisor: nessun nuovo avviso (restano gli INFO voluti sulle tabelle senza policy e il WARN sulla protezione password).
+- Accesso: `ADMIN_LOGIN_EMAILS` (variabile server). Chi non è in lista riceve 404; chi non ha fatto login va su /accedi.
+- Scritture con service role dopo il controllo admin; le schede rivendicate non si modificano dall'admin (solo nascondere).
+- Funzioni: elenco con ricerca e filtri, contatore verso gli obiettivi 60/100/150, casella richieste (approva/rifiuta), editor con link Google Maps (nome, indirizzo, città, provincia, regione, coordinate via Nominatim), avviso duplicati, foto con upload firmato diretto a Storage, riordino, "Salva e aggiungi un'altra", Ctrl+S.
+- Test: `tests/admin.spec.ts`. In locale manca la service role key, quindi il flusso completo è verificato sull'anteprima (variabile temporanea sul branch che rende admin l'utente di prova; da togliere dopo il merge).
